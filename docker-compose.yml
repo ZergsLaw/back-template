@@ -258,3 +258,20 @@ services:
       - "${USER_SVC_GRPC_GW_PORT}:8082" # gRPC-Gateway
       - "${USER_SVC_GRPC_FILES_PORT}:8083" # file srv
 
+  mail-svc:
+    build:
+      context: .
+      dockerfile: ./cmd/session/docker/Dockerfile
+    container_name: "back_template_mail_svc"
+    restart: always
+    command: [
+      "-cfg=/config.yml",
+      "-log_level=debug",
+    ]
+    labels:
+      service: "mail"
+    volumes:
+      - "${MAIL_SVC_CONFIG}:/config.yml"
+    ports:
+      - "${MAIL_SVC_GRPC_PORT}:8080" # gRPC
+      - "${MAIL_SVC_METRIC_PORT}:8081" # metric

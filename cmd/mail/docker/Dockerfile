@@ -7,7 +7,7 @@ FROM scratch
 WORKDIR /bin
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY /bin/session session
-COPY /cmd/session/migrate migrate/
+COPY /bin/mail mail
+COPY /cmd/mail/migrate migrate/
 
-ENTRYPOINT ["session"]
+ENTRYPOINT ["mail"]

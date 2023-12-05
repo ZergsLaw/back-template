@@ -41,3 +41,8 @@ export USER_SVC_GRPC_FILES_PORT=10003
 export SESSION_SVC_CONFIG="./cmd/session/config.yml"
 export SESSION_SVC_GRPC_PORT=10100
 export SESSION_SVC_METRIC_PORT=10101
+
+# mail svc
+export MAIL_SVC_CONFIG="./cmd/mail/config.yml"
+export MAIL_SVC_GRPC_PORT=10110
+export MAIL_SVC_METRIC_PORT=10111
