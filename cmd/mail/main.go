@@ -72,7 +72,7 @@ func main() {
 	appName := filepath.Base(os.Args[0])
 	//Родительский контекст содержащий наш логгер
 	ctxParent := logger.NewContext(context.Background(), log.With(slog.String(logger.Version.String(), version)))
-	//Контекст с набором системных сигналов
+	//Контекст слушающий данный набор системных сигналов
 	ctx, cancel := signal.NotifyContext(ctxParent, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGTERM)
 	defer cancel()
 
