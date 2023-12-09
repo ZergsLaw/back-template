@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/ZergsLaw/back-template/cmd/mail/internal/adapters/queue"
 	"github.com/ZergsLaw/back-template/cmd/mail/internal/adapters/repo"
 	"github.com/ZergsLaw/back-template/internal/flags"
 	"github.com/ZergsLaw/back-template/internal/grpchelper"
@@ -120,6 +121,20 @@ func run(ctx context.Context, cfg config, reg *prometheus.Registry, namespace st
 		err := r.Close()
 		if err != nil {
 			log.Error("close database connection", slog.String(logger.Error.String(), err.Error()))
+		}
+	}()
+
+	//оплучение обьекта очереди
+	q, err := queue.New(ctx, reg, namespace, queue.Config{
+		URLs:     cfg.Queue.URLs,
+		Username: cfg.Queue.Username,
+		Password: cfg.Queue.Password,
+	})
+	//Отложенное закрытие подключения к очереди
+	defer func() {
+		err := q.Close()
+		if err != nil {
+			log.Error("close queue connection", slog.String(logger.Error.String(), err.Error()))
 		}
 	}()
 
