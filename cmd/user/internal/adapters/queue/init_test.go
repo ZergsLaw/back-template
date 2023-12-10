@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	queueCfgPath = `testdata/nats.conf`
+	queueCfgPath = `../../../testdata/nats.conf`
 )
 
 func start(t *testing.T) (context.Context, *queue.Client, *require.Assertions, *que.Queue) {
