@@ -49,12 +49,17 @@ func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Co
 	}, nil
 }
 
+// Close Закрываем подключение к очереди
 func (c *Client) Close() error {
 	return c.queue.Drain()
 }
+
+// Monitor мониторим подключение к очереди
 func (c *Client) Monitor(ctx context.Context) error {
 	return c.queue.Monitor(ctx)
 }
+
+// Process запускаем процесс накопления событий из очереди
 func (c *Client) Process(ctx context.Context) error {
 	group, ctx := errgroup.WithContext(ctx)
 
@@ -62,6 +67,7 @@ func (c *Client) Process(ctx context.Context) error {
 		user_pb.TopicAdd,
 	}
 
+	//Перебираем темы для поиска в очереди и получаем событие
 	for i := range subjects {
 		i := i
 		group.Go(func() error {
@@ -72,16 +78,19 @@ func (c *Client) Process(ctx context.Context) error {
 	return group.Wait()
 }
 
+// Обрабатываем полученное из очереди событие
 func (c *Client) handleEvent(ctx context.Context, msg queue.Message) error {
 	ack := make(chan dom.AcknowledgeKind)
 
 	log := logger.FromContext(ctx)
 
 	var err error
+	//Записываем первую ошибку (отмена контекста, ошибка при обработке события) в переменную
 	switch {
 	case ctx.Err() != nil:
 		return nil
 	case msg.Subject() == user_pb.TopicAdd:
+		//TODO: Добавить логику обработки события
 		log.Info("Find event by topic:", slog.With(slog.String(user_pb.TopicAdd, msg.Subject())))
 		return nil
 	default:
@@ -91,6 +100,8 @@ func (c *Client) handleEvent(ctx context.Context, msg queue.Message) error {
 		return err
 	}
 
+	//Отправляем очереди сообщение о получении события, либо повторый запрос на него
+	//Сейчас из канала читать нечего, но после добавления логики обработки события все будет ок
 	select {
 	case <-ctx.Done():
 		return nil
