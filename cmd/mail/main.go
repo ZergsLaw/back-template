@@ -142,6 +142,8 @@ func run(ctx context.Context, cfg config, reg *prometheus.Registry, namespace st
 	err = serve.Start(
 		ctx,
 		serve.Metrics(log.With(slog.String(logger.Module.String(), "metric")), cfg.Server.Host, cfg.Server.Port.Metric, reg),
+		q.Monitor,
+		q.Process,
 	)
 	if err != nil {
 		return fmt.Errorf("serve.Start: %w", err)
