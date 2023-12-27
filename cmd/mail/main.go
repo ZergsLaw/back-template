@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/ZergsLaw/back-template/cmd/mail/internal/adapters/queue"
 	"github.com/ZergsLaw/back-template/cmd/mail/internal/adapters/repo"
+	"github.com/ZergsLaw/back-template/cmd/mail/internal/app"
+	"github.com/ZergsLaw/back-template/cmd/mail/internal/mailer"
 	"github.com/ZergsLaw/back-template/internal/flags"
 	"github.com/ZergsLaw/back-template/internal/grpchelper"
 	"github.com/ZergsLaw/back-template/internal/logger"
@@ -25,9 +27,10 @@ import (
 
 type (
 	config struct {
-		Server server      `yaml:"server"`
-		DB     dbConfig    `yaml:"db"`
-		Queue  queueConfig `yaml:"queue"`
+		Server server       `yaml:"server"`
+		DB     dbConfig     `yaml:"db"`
+		Queue  queueConfig  `yaml:"queue"`
+		Mailer mailerConfig `yaml:"mailer"`
 	}
 	server struct {
 		Host string `yaml:"host"`
@@ -46,6 +49,14 @@ type (
 		URLs     []string `yaml:"urls"`
 		Username string   `yaml:"username"`
 		Password string   `yaml:"password"`
+	}
+	mailerConfig struct {
+		gmail GmailConfig `yaml:"gmail"`
+	}
+	GmailConfig struct {
+		SenderName          string `yaml:"sender_name"`
+		SenderEmailAddress  string `yaml:"sender_email_address"`
+		SenderEmailPassword string `yaml:"sender_email_password"`
 	}
 )
 
@@ -138,10 +149,19 @@ func run(ctx context.Context, cfg config, reg *prometheus.Registry, namespace st
 		}
 	}()
 
+	s := mailer.NewSenderGmail(mailer.GmailConfig{
+		GmailSenderName:          cfg.Mailer.gmail.SenderName,
+		GmailSenderEmailAddress:  cfg.Mailer.gmail.SenderEmailAddress,
+		GmailSenderEmailPassword: cfg.Mailer.gmail.SenderEmailPassword,
+	})
+
+	module := app.New(s, q)
+
 	//Запуск служб (сервер для метрик)
 	err = serve.Start(
 		ctx,
 		serve.Metrics(log.With(slog.String(logger.Module.String(), "metric")), cfg.Server.Host, cfg.Server.Port.Metric, reg),
+		module.Process,
 		q.Monitor,
 		q.Process,
 	)

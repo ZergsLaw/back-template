@@ -12,7 +12,6 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/laher/mergefs v0.1.1
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.63
 	github.com/mvrilo/go-redoc v0.1.4
@@ -57,6 +56,7 @@ require (
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
+	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.17.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect

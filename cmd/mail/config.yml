@@ -23,3 +23,8 @@ queue:
   ]
   username: "mail_svc"
   password: "super_duper_secret_key"
+mailer:
+  gmail:
+    sender_name: "mailer_svc"
+    sender_email_address: "mailer_svc@gmail.com"
+    sender_email_password: "mailerpassfromgmail"

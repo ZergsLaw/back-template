@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	user_pb "github.com/ZergsLaw/back-template/api/user/v1"
+	"github.com/ZergsLaw/back-template/cmd/mail/internal/app"
 	"github.com/ZergsLaw/back-template/internal/dom"
-	"github.com/ZergsLaw/back-template/internal/logger"
 	"github.com/ZergsLaw/back-template/internal/queue"
+	"github.com/gofrs/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sync/errgroup"
-	"log/slog"
 	"strings"
 )
 
@@ -25,6 +25,7 @@ type (
 		consumerName string
 		m            Metrics
 		queue        *queue.Queue
+		chUpStatus   chan dom.Event[app.UserStatus]
 	}
 )
 
@@ -46,7 +47,12 @@ func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Co
 		consumerName: namespace,
 		queue:        client,
 		m:            m,
+		chUpStatus:   make(chan dom.Event[app.UserStatus]),
 	}, nil
+}
+
+func (c *Client) UpUserStatus() <-chan dom.Event[app.UserStatus] {
+	return c.chUpStatus
 }
 
 // Close Закрываем подключение к очереди
@@ -67,7 +73,7 @@ func (c *Client) Process(ctx context.Context) error {
 		user_pb.TopicAdd,
 	}
 
-	//Перебираем темы для поиска в очереди и получаем событие
+	//Подписываемся на темы из очереди и получаем событие
 	for i := range subjects {
 		i := i
 		group.Go(func() error {
@@ -82,17 +88,13 @@ func (c *Client) Process(ctx context.Context) error {
 func (c *Client) handleEvent(ctx context.Context, msg queue.Message) error {
 	ack := make(chan dom.AcknowledgeKind)
 
-	log := logger.FromContext(ctx)
-
 	var err error
 	//Записываем первую ошибку (отмена контекста, ошибка при обработке события) в переменную
 	switch {
 	case ctx.Err() != nil:
 		return nil
 	case msg.Subject() == user_pb.TopicAdd:
-		//TODO: Добавить логику обработки события
-		log.Info("Find event by topic:", slog.With(slog.String(user_pb.TopicAdd, msg.Subject())))
-		return nil
+		err = c.handleUpStatusAdd(ctx, ack, msg.ID(), msg)
 	default:
 		err = fmt.Errorf("%w: unknown topic %s", errors.New("invalid argument"), msg.Subject())
 	}
@@ -100,8 +102,7 @@ func (c *Client) handleEvent(ctx context.Context, msg queue.Message) error {
 		return err
 	}
 
-	//Отправляем очереди сообщение о получении события, либо повторый запрос на него
-	//Сейчас из канала читать нечего, но после добавления логики обработки события все будет ок
+	//Отправляем очереди сообщение о получении события, либо повторный запрос события
 	select {
 	case <-ctx.Done():
 		return nil
@@ -115,6 +116,32 @@ func (c *Client) handleEvent(ctx context.Context, msg queue.Message) error {
 		if err != nil {
 			return fmt.Errorf("msg.Ack|Nack: %w", err)
 		}
+	}
+
+	return nil
+}
+func (c *Client) handleUpStatusAdd(ctx context.Context, ack chan dom.AcknowledgeKind, msgID uuid.UUID, msg queue.Message) error {
+	event := &user_pb.Event{}
+	err := msg.Unmarshal(event)
+	if err != nil {
+		return fmt.Errorf("msg.Unmarshal: %w", err)
+	}
+
+	addEvent := event.GetAdd()
+	if err != nil {
+		return fmt.Errorf("%w: event.GetAdd: %+v", queue.ErrIncorrectMessage, event.GetBody())
+	}
+
+	arg := dom.NewEvent(msgID, ack, app.UserStatus{
+		UserID: uuid.Must(uuid.FromString(addEvent.User.Id)),
+		Status: dom.UserStatusFromAPI(addEvent.User.Kind),
+		Email:  addEvent.User.Email,
+	})
+
+	select {
+	case <-ctx.Done():
+		return nil
+	case c.chUpStatus <- *arg:
 	}
 
 	return nil
