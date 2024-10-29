@@ -187,7 +187,7 @@ func TestE2E(t *testing.T) {
 	err = json.NewDecoder(resp.Body).Decode(&getFile)
 	assert.NoError(err)
 
-	// Update UserProfile
+	// UserUpdate UserProfile
 	ctx = auth(ctx, strings.Join(md.Get("authorization"), ""))
 
 	updateUserReq := &user_pb.UpdateUserRequest{

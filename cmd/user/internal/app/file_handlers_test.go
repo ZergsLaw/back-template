@@ -12,7 +12,6 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
 )
 
 func TestApp_GetFile(t *testing.T) {
@@ -23,10 +22,9 @@ func TestApp_GetFile(t *testing.T) {
 			OwnerID: ownerID,
 			FileID:  fileID,
 		}
-		session = dom.Session{
+		session = app.Session{
 			ID:     uuid.UUID{},
 			UserID: ownerID,
-			Status: dom.UserStatusDefault,
 		}
 		file = &app.Avatar{
 			ID:          fileID,
@@ -36,7 +34,7 @@ func TestApp_GetFile(t *testing.T) {
 	)
 
 	testCases := map[string]struct {
-		session             dom.Session
+		session             app.Session
 		fileID              uuid.UUID
 		repoGetFileRes      *app.AvatarInfo
 		repoGetFileErr      error
@@ -93,10 +91,9 @@ func TestApp_SaveAvatar(t *testing.T) {
 		Name:     "name",
 		AvatarID: uuid.Must(uuid.NewV4()),
 	}
-	session := dom.Session{
+	session := app.Session{
 		ID:     uuid.Must(uuid.NewV4()),
 		UserID: ownerID,
-		Status: dom.UserStatusDefault,
 	}
 	user2 := user1
 	user3 := user2
@@ -107,7 +104,7 @@ func TestApp_SaveAvatar(t *testing.T) {
 	fileErrInvalidImageFormat.ContentType = "image/avi"
 
 	testCases := map[string]struct {
-		session                dom.Session
+		session                app.Session
 		file                   app.Avatar
 		repoGetCountAvatarsRes int
 		repoGetCountAvatarsErr error
@@ -162,12 +159,12 @@ func TestApp_SaveAvatar(t *testing.T) {
 					}
 
 					if (tc.repoGetCountAvatarsErr == nil || errors.Is(tc.repoGetCountAvatarsErr, app.ErrNotFound)) && tc.repoGetCountAvatarsRes < 10 && tc.fileUploadFileErr == nil && tc.repoSaveAvatarCacheErr == nil {
-						mocks.repo.EXPECT().ByID(ctx, tc.session.UserID).Return(tc.repoByIDRes, tc.repoByIDErr)
+						mocks.repo.EXPECT().UserByID(ctx, tc.session.UserID).Return(tc.repoByIDRes, tc.repoByIDErr)
 					}
 
 					if (tc.repoGetCountAvatarsErr == nil || errors.Is(tc.repoGetCountAvatarsErr, app.ErrNotFound)) && tc.repoGetCountAvatarsRes < 10 && tc.fileUploadFileErr == nil && tc.repoSaveAvatarCacheErr == nil && tc.repoByIDErr == nil {
 						tc.repoByIDRes.AvatarID = tc.fileUploadFileRes
-						mocks.repo.EXPECT().Update(ctx, *tc.repoByIDRes).Return(tc.repoUpdateRes, tc.repoUpdateErr)
+						mocks.repo.EXPECT().UserUpdate(ctx, *tc.repoByIDRes).Return(tc.repoUpdateRes, tc.repoUpdateErr)
 					}
 				}
 			}
@@ -198,21 +195,19 @@ func TestApp_RemoveAvatar(t *testing.T) {
 			Name:     "name",
 			AvatarID: uuid.Must(uuid.NewV4()),
 		}
-		session = dom.Session{
+		session = app.Session{
 			ID:     uuid.Must(uuid.NewV4()),
 			UserID: ownerID,
-			Status: dom.UserStatusDefault,
 		}
-		sessionAnother = dom.Session{
+		sessionAnother = app.Session{
 			ID:     uuid.Must(uuid.NewV4()),
 			UserID: uuid.Must(uuid.NewV4()),
-			Status: dom.UserStatusDefault,
 		}
 		user2 = user1
 	)
 
 	testCases := map[string]struct {
-		session                        dom.Session
+		session                        app.Session
 		fileID                         uuid.UUID
 		repoGetFileRes                 *app.AvatarInfo
 		repoGetFileErr                 error
@@ -261,7 +256,7 @@ func TestApp_RemoveAvatar(t *testing.T) {
 				}
 
 				if tc.repoDeleteAvatarCacheErr == nil && tc.fileDeleteFileErr == nil && tc.repoListAvatarCacheByUserIDErr == nil {
-					mocks.repo.EXPECT().ByID(ctx, tc.session.UserID).Return(tc.repoByIDRes, tc.repoByIDErr)
+					mocks.repo.EXPECT().UserByID(ctx, tc.session.UserID).Return(tc.repoByIDRes, tc.repoByIDErr)
 				}
 
 				if tc.repoDeleteAvatarCacheErr == nil && tc.fileDeleteFileErr == nil &&
@@ -271,7 +266,7 @@ func TestApp_RemoveAvatar(t *testing.T) {
 						newAvatarID = tc.repoListAvatarCacheByUserIDRes[0].FileID
 					}
 					tc.repoByIDRes.AvatarID = newAvatarID
-					mocks.repo.EXPECT().Update(ctx, *tc.repoByIDRes).Return(tc.repoUpdateRes, tc.repoUpdateErr)
+					mocks.repo.EXPECT().UserUpdate(ctx, *tc.repoByIDRes).Return(tc.repoUpdateRes, tc.repoUpdateErr)
 				}
 			}
 

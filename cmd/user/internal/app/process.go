@@ -17,7 +17,7 @@ func (a *App) Process(ctx context.Context) error {
 	var (
 		log   = logger.FromContext(ctx)
 		wg    = &sync.WaitGroup{}
-		tasks = make(chan *dom.Event[Task])
+		tasks = make(chan *app.Event[Task])
 	)
 	defer wg.Wait()
 
@@ -58,12 +58,7 @@ func (a *App) Process(ctx context.Context) error {
 }
 
 func (a *App) handleTaskKindEventAdd(ctx context.Context, task Task) error {
-	err := a.queue.AddUser(ctx, task.ID, task.User)
-	if err != nil {
-		return fmt.Errorf("a.queue.AddUser: %w", err)
-	}
-
-	err = a.repo.FinishTask(ctx, task.ID)
+	err := a.repo.FinishTask(ctx, task.ID)
 	if err != nil {
 		return fmt.Errorf("a.repo.FinishTask: %w", err)
 	}
@@ -72,12 +67,7 @@ func (a *App) handleTaskKindEventAdd(ctx context.Context, task Task) error {
 }
 
 func (a *App) handleTaskKindEventDel(ctx context.Context, task Task) error {
-	err := a.queue.DeleteUser(ctx, task.ID, task.User)
-	if err != nil {
-		return fmt.Errorf("a.queue.DeleteUser: %w", err)
-	}
-
-	err = a.repo.FinishTask(ctx, task.ID)
+	err := a.repo.FinishTask(ctx, task.ID)
 	if err != nil {
 		return fmt.Errorf("a.repo.FinishTask: %w", err)
 	}
@@ -86,12 +76,8 @@ func (a *App) handleTaskKindEventDel(ctx context.Context, task Task) error {
 }
 
 func (a *App) handleTaskKindEventUpdate(ctx context.Context, task Task) error {
-	err := a.queue.UpdateUser(ctx, task.ID, task.User)
-	if err != nil {
-		return fmt.Errorf("a.queue.UpdateUser: %w", err)
-	}
 
-	err = a.repo.FinishTask(ctx, task.ID)
+	err := a.repo.FinishTask(ctx, task.ID)
 	if err != nil {
 		return fmt.Errorf("a.subscribe.FinishTask: %w", err)
 	}
@@ -99,7 +85,7 @@ func (a *App) handleTaskKindEventUpdate(ctx context.Context, task Task) error {
 	return nil
 }
 
-func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan *dom.Event[Task]) {
+func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan *app.Event[Task]) {
 	defer wg.Done()
 
 	const (
@@ -124,7 +110,7 @@ func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan 
 				continue
 			}
 
-			handle := func(event *dom.Event[Task], ackCh chan dom.AcknowledgeKind) {
+			handle := func(event *app.Event[Task], ackCh chan app.AcknowledgeKind) {
 				select {
 				case <-ctx.Done():
 					return
@@ -136,7 +122,7 @@ func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan 
 					case <-ctx.Done():
 						return
 					case ack := <-ackCh:
-						if ack == dom.AcknowledgeKindAck {
+						if ack == app.AcknowledgeKindAck {
 							return
 						}
 
@@ -149,9 +135,9 @@ func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan 
 				}
 			}
 
-			ackCh := make(chan dom.AcknowledgeKind)
+			ackCh := make(chan app.AcknowledgeKind)
 			for i := range tasks {
-				event := dom.NewEvent(tasks[i].ID, ackCh, tasks[i])
+				event := app.NewEvent(tasks[i].ID, ackCh, tasks[i])
 
 				handle(event, ackCh)
 			}

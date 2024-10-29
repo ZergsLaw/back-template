@@ -11,7 +11,6 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
 	"github.com/ZergsLaw/back-template/internal/testhelper"
 )
 
@@ -19,7 +18,7 @@ const pngFilePath = `./testdata/test.png`
 
 var (
 	errAny = errors.New("any error")
-	origin = dom.Origin{
+	origin = app.Origin{
 		IP:        net.ParseIP("192.100.10.4"),
 		UserAgent: "UserAgent",
 	}
@@ -32,7 +31,8 @@ type mocks struct {
 	repo     *MockRepo
 	sessions *MockSessions
 	file     *MockFileStore
-	queue    *MockQueue
+	auth     *MockAuth
+	id       *MockID
 }
 
 func start(t *testing.T) (context.Context, *app.App, *mocks, *require.Assertions) {
@@ -43,16 +43,18 @@ func start(t *testing.T) (context.Context, *app.App, *mocks, *require.Assertions
 	mockHasher := NewMockPasswordHash(ctrl)
 	mockSession := NewMockSessions(ctrl)
 	mockFileStore := NewMockFileStore(ctrl)
-	mockQueue := NewMockQueue(ctrl)
+	mockAuth := NewMockAuth(ctrl)
+	mockID := NewMockID(ctrl)
 
-	module := app.New(mockRepo, mockHasher, mockSession, mockFileStore, mockQueue)
+	module := app.New(mockRepo, mockHasher, mockAuth, mockID, mockSession, mockFileStore)
 
 	mocks := &mocks{
 		hasher:   mockHasher,
 		repo:     mockRepo,
 		sessions: mockSession,
 		file:     mockFileStore,
-		queue:    mockQueue,
+		auth:     mockAuth,
+		id:       mockID,
 	}
 
 	return testhelper.Context(t), module, mocks, require.New(t)

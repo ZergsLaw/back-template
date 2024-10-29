@@ -12,7 +12,7 @@ import (
 
 	user_pb "github.com/ZergsLaw/back-template/api/user/v1"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/adapters/session"
+	"github.com/ZergsLaw/back-template/cmd/user/internal/session"
 )
 
 const (

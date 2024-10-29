@@ -20,7 +20,6 @@ import (
 
 	user_pb "github.com/ZergsLaw/back-template/api/user/v1"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
 	"github.com/ZergsLaw/back-template/internal/grpchelper"
 	"github.com/ZergsLaw/back-template/internal/logger"
 	"github.com/ZergsLaw/back-template/internal/metrics"
@@ -31,16 +30,16 @@ type application interface {
 	VerificationEmail(ctx context.Context, email string) error
 	VerificationUsername(ctx context.Context, username string) error
 	CreateUser(ctx context.Context, email, username, fullName, password string) (uuid.UUID, error)
-	Login(ctx context.Context, email, password string, origin dom.Origin) (uuid.UUID, *dom.Token, error)
-	UserByID(ctx context.Context, session dom.Session, userID uuid.UUID) (*app.User, error)
-	ListUserByFilters(ctx context.Context, _ dom.Session, filters app.SearchParams) ([]app.User, int, error)
-	Logout(ctx context.Context, session dom.Session) error
-	UpdatePassword(ctx context.Context, session dom.Session, oldPass, newPass string) error
-	Auth(ctx context.Context, token string) (*dom.Session, error)
-	UpdateUser(ctx context.Context, session dom.Session, username string, avatarID uuid.UUID) error
-	RemoveAvatar(ctx context.Context, session dom.Session, fileID uuid.UUID) error
-	ListUserAvatars(ctx context.Context, session dom.Session) ([]app.AvatarInfo, error)
-	GetUsersByIDs(ctx context.Context, session dom.Session, ids []uuid.UUID) ([]app.User, error)
+	Login(ctx context.Context, email, password string, origin app.Origin) (uuid.UUID, *app.Token, error)
+	UserByID(ctx context.Context, session app.Session, userID uuid.UUID) (*app.User, error)
+	ListUserByFilters(ctx context.Context, _ app.Session, filters app.SearchParams) ([]app.User, int, error)
+	Logout(ctx context.Context, session app.Session) error
+	UpdatePassword(ctx context.Context, session app.Session, oldPass, newPass string) error
+	Auth(ctx context.Context, token string) (*app.Session, error)
+	UpdateUser(ctx context.Context, session app.Session, username string, avatarID uuid.UUID) error
+	RemoveAvatar(ctx context.Context, session app.Session, fileID uuid.UUID) error
+	ListUserAvatars(ctx context.Context, session app.Session) ([]app.AvatarInfo, error)
+	GetUsersByIDs(ctx context.Context, session app.Session, ids []uuid.UUID) ([]app.User, error)
 }
 
 type api struct {
@@ -82,7 +81,7 @@ func New(ctx context.Context, m metrics.Metrics, applications application, reg *
 	return srv
 }
 
-func originFromCtx(ctx context.Context) (*dom.Origin, error) {
+func originFromCtx(ctx context.Context) (*app.Origin, error) {
 	p, ok := peer.FromContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("peer.FromContext: %w", app.ErrNotFound)
@@ -103,7 +102,7 @@ func originFromCtx(ctx context.Context) (*dom.Origin, error) {
 		clientUserAgent = strings.Join(md.Get(userAgent), "")
 	}
 
-	return &dom.Origin{
+	return &app.Origin{
 		IP:        net.ParseIP(host),
 		UserAgent: clientUserAgent,
 	}, nil

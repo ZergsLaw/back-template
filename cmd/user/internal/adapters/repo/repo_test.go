@@ -1,18 +1,15 @@
-//go:build integration
-
 package repo_test
 
 import (
 	"context"
+	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	dom "github.com/ZergsLaw/back-template/internal/dom"
 	"sort"
 	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/samber/lo"
-
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
 )
 
 type customRepoInterface interface {
@@ -40,39 +37,39 @@ func TestRepo_Smoke(t *testing.T) {
 	user3.Name = "username3"
 	user3.Email = "user3@gmail.com"
 
-	id, err := r.Save(ctx, user)
+	id, err := r.UserSave(ctx, user)
 	assert.NoError(err)
 	assert.NotNil(id)
 	user.ID = id
 
 	user.Name = "new_username"
 	user.FullName = "Elon Musk2"
-	_, err = r.Update(ctx, user)
+	_, err = r.UserUpdate(ctx, user)
 	assert.NoError(err)
 
-	_, err = r.Save(ctx, user2)
+	_, err = r.UserSave(ctx, user2)
 	assert.ErrorIs(err, app.ErrEmailExist)
 
 	user2.Email = "free@gmail.com"
 	user2.Name = user.Name
-	_, err = r.Save(ctx, user2)
+	_, err = r.UserSave(ctx, user2)
 	assert.ErrorIs(err, app.ErrUsernameExist)
 
-	user3ID, err := r.Save(ctx, user3)
+	user3ID, err := r.UserSave(ctx, user3)
 	assert.NoError(err)
 	assert.NotNil(user3ID)
 
-	res, err := r.ByID(ctx, user.ID)
+	res, err := r.UserByID(ctx, user.ID)
 	assert.NoError(err)
 	user.CreatedAt = res.CreatedAt
 	user.UpdatedAt = res.UpdatedAt
 	assert.Equal(user, *res)
 
-	res, err = r.ByEmail(ctx, user.Email)
+	res, err = r.UserByEmail(ctx, user.Email)
 	assert.NoError(err)
 	assert.Equal(user, *res)
 
-	res, err = r.ByUsername(ctx, user.Name)
+	res, err = r.UserByUsername(ctx, user.Name)
 	assert.NoError(err)
 	assert.Equal(user, *res)
 
@@ -89,10 +86,10 @@ func TestRepo_Smoke(t *testing.T) {
 	assert.Equal(1, total)
 	assert.Equal([]app.User{user}, listRes)
 
-	err = r.Delete(ctx, id)
+	err = r.UserDelete(ctx, id)
 	assert.NoError(err)
 
-	res, err = r.ByID(ctx, user.ID)
+	res, err = r.UserByID(ctx, user.ID)
 	assert.Nil(res)
 	assert.ErrorIs(err, app.ErrNotFound)
 
@@ -207,30 +204,30 @@ func TestRepo_Tx(t *testing.T) {
 		user2.FullName = "Elon Sipki"
 		user2.Email = "user2@gmail.com"
 
-		id, err := r.Save(ctx, user)
+		id, err := r.UserSave(ctx, user)
 		assert.NoError(err)
 		assert.NotNil(id)
 		user.ID = id
 
-		user2ID, err := r.Save(ctx, user2)
+		user2ID, err := r.UserSave(ctx, user2)
 		assert.NoError(err)
 		assert.NotNil(user2ID)
 
 		user.Name = "new_username"
-		_, err = r.Update(ctx, user)
+		_, err = r.UserUpdate(ctx, user)
 		assert.NoError(err)
 
-		res, err := r.ByID(ctx, user.ID)
+		res, err := r.UserByID(ctx, user.ID)
 		assert.NoError(err)
 		user.CreatedAt = res.CreatedAt
 		user.UpdatedAt = res.UpdatedAt
 		assert.Equal(user, *res)
 
-		res, err = r.ByEmail(ctx, user.Email)
+		res, err = r.UserByEmail(ctx, user.Email)
 		assert.NoError(err)
 		assert.Equal(user, *res)
 
-		res, err = r.ByUsername(ctx, user.Name)
+		res, err = r.UserByUsername(ctx, user.Name)
 		assert.NoError(err)
 		assert.Equal(user, *res)
 
@@ -250,7 +247,7 @@ func TestRepo_Tx(t *testing.T) {
 		err = r.Delete(ctx, id)
 		assert.NoError(err)
 
-		res, err = r.ByID(ctx, user.ID)
+		res, err = r.UserByID(ctx, user.ID)
 		assert.Nil(res)
 		assert.ErrorIs(err, app.ErrNotFound)
 

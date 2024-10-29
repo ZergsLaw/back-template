@@ -4,11 +4,10 @@ package auth
 
 import (
 	"fmt"
+	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
 
 	"github.com/gofrs/uuid"
 	"github.com/o1egl/paseto/v2"
-
-	"github.com/ZergsLaw/back-template/cmd/session/internal/app"
 )
 
 var _ app.Auth = &Auth{}

@@ -4,9 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
-
 	"github.com/gofrs/uuid"
+	"strings"
 
 	"github.com/ZergsLaw/back-template/internal/dom"
 )
@@ -14,7 +13,7 @@ import (
 // VerificationEmail check exists or not user email.
 func (a *App) VerificationEmail(ctx context.Context, email string) error {
 	email = strings.ToLower(email)
-	_, err := a.repo.ByEmail(ctx, email)
+	_, err := a.repo.UserByEmail(ctx, email)
 	switch {
 	case errors.Is(err, ErrNotFound):
 		return nil
@@ -27,7 +26,7 @@ func (a *App) VerificationEmail(ctx context.Context, email string) error {
 
 // VerificationUsername check exists or not username.
 func (a *App) VerificationUsername(ctx context.Context, username string) error {
-	_, err := a.repo.ByUsername(ctx, username)
+	_, err := a.repo.UserByUsername(ctx, username)
 	switch {
 	case errors.Is(err, ErrNotFound):
 		return nil
@@ -52,15 +51,15 @@ func (a *App) CreateUser(ctx context.Context, email, username, fullName, passwor
 			Name:     username,
 			FullName: fullName,
 			PassHash: passHash,
-			Status:   dom.UserStatusDefault,
+			Status:   app.UserStatusDefault,
 		}
 
-		userID, err = repo.Save(ctx, newUser)
+		userID, err = repo.UserSave(ctx, newUser)
 		if err != nil {
-			return fmt.Errorf("repo.Save: %w", err)
+			return fmt.Errorf("repo.UserSave: %w", err)
 		}
 
-		u, err := repo.ByID(ctx, userID)
+		u, err := repo.UserByID(ctx, userID)
 		if err != nil {
 			return fmt.Errorf("repo.ByID: %w", err)
 		}
@@ -85,9 +84,9 @@ func (a *App) CreateUser(ctx context.Context, email, username, fullName, passwor
 }
 
 // Login make new session and returns sessions token.
-func (a *App) Login(ctx context.Context, email, password string, origin dom.Origin) (uuid.UUID, *dom.Token, error) {
+func (a *App) Login(ctx context.Context, email, password string, origin Origin) (uuid.UUID, *Token, error) {
 	email = strings.ToLower(email)
-	user, err := a.repo.ByEmail(ctx, email)
+	user, err := a.repo.UserByEmail(ctx, email)
 	if err != nil {
 		return uuid.Nil, nil, fmt.Errorf("a.repo.ByEmail: %w", err)
 	}
@@ -96,36 +95,47 @@ func (a *App) Login(ctx context.Context, email, password string, origin dom.Orig
 		return uuid.Nil, nil, ErrInvalidPassword
 	}
 
-	token, err := a.sessions.Save(ctx, user.ID, origin, user.Status)
+	sessionID := a.id.New()
+	token, err := a.auth.Token(sessionID)
 	if err != nil {
-		return uuid.Nil, nil, fmt.Errorf("a.sessions.Save: %w", err)
+		return uuid.Nil, nil, fmt.Errorf("a.auth.Token: %w", err)
+	}
+
+	err = a.sessions.SessionSave(ctx, Session{
+		ID:     sessionID,
+		Origin: origin,
+		Token:  *token,
+		UserID: user.ID,
+	})
+	if err != nil {
+		return uuid.Nil, nil, fmt.Errorf("a.sessions.UserSave: %w", err)
 	}
 
 	return user.ID, token, nil
 }
 
 // UserByID get user by id.
-func (a *App) UserByID(ctx context.Context, session dom.Session, userID uuid.UUID) (*User, error) {
+func (a *App) UserByID(ctx context.Context, session Session, userID uuid.UUID) (*User, error) {
 	if userID == uuid.Nil {
 		userID = session.UserID
 	}
 
-	return a.repo.ByID(ctx, userID)
+	return a.repo.UserByID(ctx, userID)
 }
 
 // ListUserByFilters get users by filters.
-func (a *App) ListUserByFilters(ctx context.Context, _ dom.Session, filters SearchParams) ([]User, int, error) {
+func (a *App) ListUserByFilters(ctx context.Context, _ Session, filters SearchParams) ([]User, int, error) {
 	return a.repo.SearchUsers(ctx, filters)
 }
 
 // Logout remove user's session.
-func (a *App) Logout(ctx context.Context, session dom.Session) error {
-	return a.sessions.Delete(ctx, session.ID)
+func (a *App) Logout(ctx context.Context, session Session) error {
+	return a.sessions.SessionDelete(ctx, session.ID)
 }
 
 // UpdatePassword update user's password.
-func (a *App) UpdatePassword(ctx context.Context, session dom.Session, oldPass, newPass string) error {
-	user, err := a.repo.ByID(ctx, session.UserID)
+func (a *App) UpdatePassword(ctx context.Context, session Session, oldPass, newPass string) error {
+	user, err := a.repo.UserByID(ctx, session.UserID)
 	if err != nil {
 		return fmt.Errorf("a.repo.ByID: %w", err)
 	}
@@ -144,22 +154,17 @@ func (a *App) UpdatePassword(ctx context.Context, session dom.Session, oldPass, 
 	}
 	user.PassHash = passHash
 
-	_, err = a.repo.Update(ctx, *user)
+	_, err = a.repo.UserUpdate(ctx, *user)
 	if err != nil {
-		return fmt.Errorf("a.repo.Update: %w", err)
+		return fmt.Errorf("a.repo.UserUpdate: %w", err)
 	}
 
 	return nil
 }
 
-// Auth get user session by token.
-func (a *App) Auth(ctx context.Context, token string) (*dom.Session, error) {
-	return a.sessions.Get(ctx, token)
-}
-
 // UpdateUser update user's profile.
-func (a *App) UpdateUser(ctx context.Context, session dom.Session, username string, avatarID uuid.UUID) error {
-	u, err := a.repo.ByID(ctx, session.UserID)
+func (a *App) UpdateUser(ctx context.Context, session Session, username string, avatarID uuid.UUID) error {
+	u, err := a.repo.UserByID(ctx, session.UserID)
 	if err != nil {
 		return fmt.Errorf("a.repo.ByID: %w", err)
 	}
@@ -185,14 +190,29 @@ func (a *App) UpdateUser(ctx context.Context, session dom.Session, username stri
 		Status:   u.Status,
 	}
 
-	_, err = a.repo.Update(ctx, user)
+	_, err = a.repo.UserUpdate(ctx, user)
 	if err != nil {
-		return fmt.Errorf("a.repo.Update: %w", err)
+		return fmt.Errorf("a.repo.UserUpdate: %w", err)
 	}
 
 	return nil
 }
 
-func (a *App) GetUsersByIDs(ctx context.Context, _ dom.Session, ids []uuid.UUID) ([]User, error) {
+func (a *App) GetUsersByIDs(ctx context.Context, _ Session, ids []uuid.UUID) ([]User, error) {
 	return a.repo.UsersByIDs(ctx, ids)
+}
+
+// Auth get user session by token.
+func (a *App) Auth(ctx context.Context, token string) (*Session, error) {
+	subject, err := a.auth.Subject(token)
+	if err != nil {
+		return nil, fmt.Errorf("a.auth.Subject: %w", err)
+	}
+
+	session, err := a.sessions.SessionByID(ctx, subject)
+	if err != nil {
+		return nil, fmt.Errorf("a.session.ByID: %w", err)
+	}
+
+	return session, nil
 }

@@ -2,6 +2,7 @@ package grpc_test
 
 import (
 	"fmt"
+	dom "github.com/ZergsLaw/back-template/internal/dom"
 	"strings"
 	"testing"
 	"time"
@@ -17,7 +18,6 @@ import (
 	user_pb "github.com/ZergsLaw/back-template/api/user/v1"
 	user_status_pb "github.com/ZergsLaw/back-template/api/user_status/v1"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
 )
 
 func TestApi_VerificationEmail(t *testing.T) {
@@ -141,7 +141,7 @@ func TestApi_Login(t *testing.T) {
 	t.Parallel()
 
 	var (
-		token       = &dom.Token{Value: "token"}
+		token       = &app.Token{Value: "token"}
 		errInternal = status.Error(codes.Internal, fmt.Sprintf("a.app.Login: %s", errAny))
 	)
 
@@ -150,7 +150,7 @@ func TestApi_Login(t *testing.T) {
 		password  string
 		want      string
 		appUserID uuid.UUID
-		appToken  *dom.Token
+		appToken  *app.Token
 		appErr    error
 		wantResp  *user_pb.LoginResponse
 		wantErr   error

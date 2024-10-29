@@ -1,12 +1,10 @@
-//go:build integration
-
 package repo_test
 
 import (
 	"context"
+	"github.com/sipki-tech/database/connectors"
 	"log/slog"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -18,13 +16,7 @@ import (
 )
 
 const (
-	migrateDir    = `../../../migrate`
-	caCrtPath     = `../../../../../certs/cockroach/ca.crt`
-	caKeyPath     = `../../../../../certs/cockroach/ca.key`
-	nodeCrtPath   = `../../../../../certs/cockroach/nodes/node1/node.crt`
-	nodeKeyPath   = `../../../../../certs/cockroach/nodes/node1/node.key`
-	clientCrtPath = `../../../../../certs/cockroach/client.root.crt`
-	clientKeyPath = `../../../../../certs/cockroach/client.root.key`
+	migrateDir = `../../../migrate`
 )
 
 func start(t *testing.T) (context.Context, *repo.Repo, *require.Assertions) {
@@ -32,23 +24,19 @@ func start(t *testing.T) (context.Context, *repo.Repo, *require.Assertions) {
 	ctx := testhelper.Context(t)
 	assert := require.New(t)
 
-	pwd, err := os.Getwd()
-	assert.NoError(err)
-
 	namespace := testhelper.Namespace(t)
 
-	cockroachCfg := testhelper.CockroachDB(
+	postgresDSN := testhelper.Postgres(
 		ctx,
 		t,
 		assert,
-		filepath.Join(pwd, caCrtPath), filepath.Join(pwd, caKeyPath),
-		filepath.Join(pwd, nodeCrtPath), filepath.Join(pwd, nodeKeyPath),
-		filepath.Join(pwd, clientCrtPath), filepath.Join(pwd, clientKeyPath),
 	)
 
 	reg := prometheus.NewPedanticRegistry()
 	r, err := repo.New(ctx, reg, namespace, repo.Config{
-		Cockroach:  *cockroachCfg,
+		Postgres: connectors.Raw{
+			Query: postgresDSN,
+		},
 		MigrateDir: migrateDir,
 		Driver:     "postgres",
 	})

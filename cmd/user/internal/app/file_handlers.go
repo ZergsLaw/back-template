@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid"
-
-	"github.com/ZergsLaw/back-template/internal/dom"
 )
 
 const (
@@ -16,7 +14,7 @@ const (
 )
 
 // SaveAvatar save info about avatar.
-func (a *App) SaveAvatar(ctx context.Context, session dom.Session, file Avatar) (avatarID uuid.UUID, err error) {
+func (a *App) SaveAvatar(ctx context.Context, session Session, file Avatar) (avatarID uuid.UUID, err error) {
 	if err = validateFormat(file.ContentType); err != nil {
 		return uuid.Nil, fmt.Errorf("validateFormat: %w", err)
 	}
@@ -33,9 +31,9 @@ func (a *App) SaveAvatar(ctx context.Context, session dom.Session, file Avatar) 
 			return ErrMaxFiles
 		}
 
-		avatarID, err = a.file.UploadFile(ctx, file)
+		avatarID, err = a.file.UploadAvatar(ctx, file)
 		if err != nil {
-			return fmt.Errorf("a.file.UploadFile: %w", err)
+			return fmt.Errorf("a.file.UploadAvatar: %w", err)
 		}
 
 		fileCache := AvatarInfo{
@@ -46,15 +44,15 @@ func (a *App) SaveAvatar(ctx context.Context, session dom.Session, file Avatar) 
 			return fmt.Errorf("repo.SaveAvatar: %w", err)
 		}
 
-		user, err := repo.ByID(ctx, session.UserID)
+		user, err := repo.UserByID(ctx, session.UserID)
 		if err != nil {
 			return fmt.Errorf("repo.ByID: %w", err)
 		}
 		user.AvatarID = avatarID
 
-		_, err = repo.Update(ctx, *user)
+		_, err = repo.UserUpdate(ctx, *user)
 		if err != nil {
-			return fmt.Errorf("repo.Update: %w", err)
+			return fmt.Errorf("repo.UserUpdate: %w", err)
 		}
 
 		return nil
@@ -67,7 +65,7 @@ func (a *App) SaveAvatar(ctx context.Context, session dom.Session, file Avatar) 
 }
 
 // RemoveAvatar remove info about avatar.
-func (a *App) RemoveAvatar(ctx context.Context, session dom.Session, fileID uuid.UUID) error {
+func (a *App) RemoveAvatar(ctx context.Context, session Session, fileID uuid.UUID) error {
 	fileCache, err := a.repo.GetAvatar(ctx, fileID)
 	if err != nil {
 		return fmt.Errorf("a.user.GetAvatarCache: %w", err)
@@ -82,7 +80,7 @@ func (a *App) RemoveAvatar(ctx context.Context, session dom.Session, fileID uuid
 			return fmt.Errorf("a.user.DeleteAvatarCache: %w", err)
 		}
 
-		if err = a.file.DeleteFile(ctx, fileID); err != nil {
+		if err = a.file.DeleteAvatar(ctx, fileID); err != nil {
 			return fmt.Errorf("a.file.RemoveObject: %w", err)
 		}
 
@@ -96,15 +94,15 @@ func (a *App) RemoveAvatar(ctx context.Context, session dom.Session, fileID uuid
 			newAvatarID = filesInCache[0].FileID
 		}
 
-		user, err := repo.ByID(ctx, session.UserID)
+		user, err := repo.UserByID(ctx, session.UserID)
 		if err != nil {
 			return fmt.Errorf("repo.ByID: %w", err)
 		}
 		user.AvatarID = newAvatarID
 
-		_, err = repo.Update(ctx, *user)
+		_, err = repo.UserUpdate(ctx, *user)
 		if err != nil {
-			return fmt.Errorf("repo.Update: %w", err)
+			return fmt.Errorf("repo.UserUpdate: %w", err)
 		}
 
 		return nil
@@ -112,23 +110,34 @@ func (a *App) RemoveAvatar(ctx context.Context, session dom.Session, fileID uuid
 }
 
 // ListUserAvatars get list user avatars.
-func (a *App) ListUserAvatars(ctx context.Context, session dom.Session) ([]AvatarInfo, error) {
+func (a *App) ListUserAvatars(ctx context.Context, session Session) ([]AvatarInfo, error) {
 	return a.repo.ListAvatarByUserID(ctx, session.UserID)
 }
 
 // GetFile get info about user file by file id.
-func (a *App) GetFile(ctx context.Context, _ dom.Session, fileID uuid.UUID) (*Avatar, error) {
+func (a *App) GetFile(ctx context.Context, _ Session, fileID uuid.UUID) (*Avatar, error) {
 	_, err := a.repo.GetAvatar(ctx, fileID)
 	if err != nil {
 		return nil, fmt.Errorf("a.user.GetAvatarCache: %w", err)
 	}
 
-	file, err := a.file.DownloadFile(ctx, fileID)
+	file, err := a.file.DownloadAvatar(ctx, fileID)
 	if err != nil {
 		return nil, fmt.Errorf("a.file.GetObject: %w", err)
 	}
 
 	return file, nil
+}
+
+// SaveFile save info about avatar.
+func (a *App) SaveFile(ctx context.Context, session Session, file File) (fileID uuid.UUID, err error) {
+
+	fileID, err = a.file.UploadFile(ctx, file)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("a.file.UploadAvatar: %w", err)
+	}
+
+	return fileID, nil
 }
 
 func validateFormat(contentType string) error {

@@ -1,4 +1,4 @@
-package dom_test
+package app_test
 
 import (
 	"testing"
@@ -13,14 +13,14 @@ func TestUserStatus_IsFreeze(t *testing.T) {
 
 	testCases := map[string]struct {
 		want   bool
-		status dom.UserStatus
+		status app.UserStatus
 	}{
-		"freeze":  {true, dom.UserStatusFreeze},
-		"default": {false, dom.UserStatusDefault},
-		"premium": {false, dom.UserStatusPremium},
-		"support": {false, dom.UserStatusSupport},
-		"admin":   {false, dom.UserStatusAdmin},
-		"jedi":    {false, dom.UserStatusJedi},
+		"freeze":  {true, app.UserStatusFreeze},
+		"default": {false, app.UserStatusDefault},
+		"premium": {false, app.UserStatusPremium},
+		"support": {false, app.UserStatusSupport},
+		"admin":   {false, app.UserStatusAdmin},
+		"jedi":    {false, app.UserStatusJedi},
 	}
 
 	for name, tc := range testCases {
@@ -39,14 +39,14 @@ func TestUserStatus_IsDefault(t *testing.T) {
 
 	testCases := map[string]struct {
 		want   bool
-		status dom.UserStatus
+		status app.UserStatus
 	}{
-		"freeze":  {false, dom.UserStatusFreeze},
-		"default": {true, dom.UserStatusDefault},
-		"premium": {false, dom.UserStatusPremium},
-		"support": {false, dom.UserStatusSupport},
-		"admin":   {false, dom.UserStatusAdmin},
-		"jedi":    {false, dom.UserStatusJedi},
+		"freeze":  {false, app.UserStatusFreeze},
+		"default": {true, app.UserStatusDefault},
+		"premium": {false, app.UserStatusPremium},
+		"support": {false, app.UserStatusSupport},
+		"admin":   {false, app.UserStatusAdmin},
+		"jedi":    {false, app.UserStatusJedi},
 	}
 
 	for name, tc := range testCases {
@@ -65,14 +65,14 @@ func TestUserStatus_IsPremium(t *testing.T) {
 
 	testCases := map[string]struct {
 		want   bool
-		status dom.UserStatus
+		status app.UserStatus
 	}{
-		"freeze":  {false, dom.UserStatusFreeze},
-		"default": {false, dom.UserStatusDefault},
-		"premium": {true, dom.UserStatusPremium},
-		"support": {false, dom.UserStatusSupport},
-		"admin":   {false, dom.UserStatusAdmin},
-		"jedi":    {false, dom.UserStatusJedi},
+		"freeze":  {false, app.UserStatusFreeze},
+		"default": {false, app.UserStatusDefault},
+		"premium": {true, app.UserStatusPremium},
+		"support": {false, app.UserStatusSupport},
+		"admin":   {false, app.UserStatusAdmin},
+		"jedi":    {false, app.UserStatusJedi},
 	}
 
 	for name, tc := range testCases {
@@ -91,14 +91,14 @@ func TestUserStatus_IsSupport(t *testing.T) {
 
 	testCases := map[string]struct {
 		want   bool
-		status dom.UserStatus
+		status app.UserStatus
 	}{
-		"freeze":  {false, dom.UserStatusFreeze},
-		"default": {false, dom.UserStatusDefault},
-		"premium": {false, dom.UserStatusPremium},
-		"support": {true, dom.UserStatusSupport},
-		"admin":   {false, dom.UserStatusAdmin},
-		"jedi":    {false, dom.UserStatusJedi},
+		"freeze":  {false, app.UserStatusFreeze},
+		"default": {false, app.UserStatusDefault},
+		"premium": {false, app.UserStatusPremium},
+		"support": {true, app.UserStatusSupport},
+		"admin":   {false, app.UserStatusAdmin},
+		"jedi":    {false, app.UserStatusJedi},
 	}
 
 	for name, tc := range testCases {
@@ -117,14 +117,14 @@ func TestUserStatus_IsAdmin(t *testing.T) {
 
 	testCases := map[string]struct {
 		want   bool
-		status dom.UserStatus
+		status app.UserStatus
 	}{
-		"freeze":  {false, dom.UserStatusFreeze},
-		"default": {false, dom.UserStatusDefault},
-		"premium": {false, dom.UserStatusPremium},
-		"support": {false, dom.UserStatusSupport},
-		"admin":   {true, dom.UserStatusAdmin},
-		"jedi":    {false, dom.UserStatusJedi},
+		"freeze":  {false, app.UserStatusFreeze},
+		"default": {false, app.UserStatusDefault},
+		"premium": {false, app.UserStatusPremium},
+		"support": {false, app.UserStatusSupport},
+		"admin":   {true, app.UserStatusAdmin},
+		"jedi":    {false, app.UserStatusJedi},
 	}
 
 	for name, tc := range testCases {
@@ -143,14 +143,14 @@ func TestUserStatus_IsJedi(t *testing.T) {
 
 	testCases := map[string]struct {
 		want   bool
-		status dom.UserStatus
+		status app.UserStatus
 	}{
-		"freeze":  {false, dom.UserStatusFreeze},
-		"default": {false, dom.UserStatusDefault},
-		"premium": {false, dom.UserStatusPremium},
-		"support": {false, dom.UserStatusSupport},
-		"admin":   {false, dom.UserStatusAdmin},
-		"jedi":    {true, dom.UserStatusJedi},
+		"freeze":  {false, app.UserStatusFreeze},
+		"default": {false, app.UserStatusDefault},
+		"premium": {false, app.UserStatusPremium},
+		"support": {false, app.UserStatusSupport},
+		"admin":   {false, app.UserStatusAdmin},
+		"jedi":    {true, app.UserStatusJedi},
 	}
 
 	for name, tc := range testCases {
@@ -169,14 +169,14 @@ func TestUserStatus_IsSpecialist(t *testing.T) {
 
 	testCases := map[string]struct {
 		want   bool
-		status dom.UserStatus
+		status app.UserStatus
 	}{
-		"freeze":  {false, dom.UserStatusFreeze},
-		"default": {false, dom.UserStatusDefault},
-		"premium": {false, dom.UserStatusPremium},
-		"support": {true, dom.UserStatusSupport},
-		"admin":   {true, dom.UserStatusAdmin},
-		"jedi":    {true, dom.UserStatusJedi},
+		"freeze":  {false, app.UserStatusFreeze},
+		"default": {false, app.UserStatusDefault},
+		"premium": {false, app.UserStatusPremium},
+		"support": {true, app.UserStatusSupport},
+		"admin":   {true, app.UserStatusAdmin},
+		"jedi":    {true, app.UserStatusJedi},
 	}
 
 	for name, tc := range testCases {
@@ -195,14 +195,14 @@ func TestUserStatus_IsManager(t *testing.T) {
 
 	testCases := map[string]struct {
 		want   bool
-		status dom.UserStatus
+		status app.UserStatus
 	}{
-		"freeze":  {false, dom.UserStatusFreeze},
-		"default": {false, dom.UserStatusDefault},
-		"premium": {false, dom.UserStatusPremium},
-		"support": {false, dom.UserStatusSupport},
-		"admin":   {true, dom.UserStatusAdmin},
-		"jedi":    {true, dom.UserStatusJedi},
+		"freeze":  {false, app.UserStatusFreeze},
+		"default": {false, app.UserStatusDefault},
+		"premium": {false, app.UserStatusPremium},
+		"support": {false, app.UserStatusSupport},
+		"admin":   {true, app.UserStatusAdmin},
+		"jedi":    {true, app.UserStatusJedi},
 	}
 
 	for name, tc := range testCases {

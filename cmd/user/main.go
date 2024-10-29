@@ -5,6 +5,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/ZergsLaw/back-template/cmd/user/internal/auth"
+	"github.com/gofrs/uuid"
+	"github.com/sipki-tech/database/connectors"
 	"io"
 	"log/slog"
 	"os"
@@ -14,19 +17,17 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/sipki-tech/database/connectors"
+
 	"google.golang.org/grpc/grpclog"
 	"gopkg.in/yaml.v3"
 
 	user_pb "github.com/ZergsLaw/back-template/api/user/v1"
-	session_client "github.com/ZergsLaw/back-template/cmd/session/client"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/adapters/files"
-	"github.com/ZergsLaw/back-template/cmd/user/internal/adapters/queue"
+
 	"github.com/ZergsLaw/back-template/cmd/user/internal/adapters/repo"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/api/grpc"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/api/http"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	session_adapter "github.com/ZergsLaw/back-template/internal/adapters/session"
 	"github.com/ZergsLaw/back-template/internal/flags"
 	"github.com/ZergsLaw/back-template/internal/grpchelper"
 	"github.com/ZergsLaw/back-template/internal/logger"
@@ -38,10 +39,9 @@ import (
 type (
 	config struct {
 		Server    server          `yaml:"server"`
-		Clients   clients         `yaml:"clients"`
 		DB        dbConfig        `yaml:"db"`
 		FileStore fileStoreConfig `yaml:"file_store"`
-		Queue     queueConfig     `yaml:"queue"`
+		AuthKey   string          `yaml:"auth_key"`
 		DevMode   bool            `yaml:"dev_mode"`
 	}
 	server struct {
@@ -55,9 +55,9 @@ type (
 		Files  uint16 `yaml:"files"`
 	}
 	dbConfig struct {
-		MigrateDir string                 `yaml:"migrate_dir"`
-		Driver     string                 `yaml:"driver"`
-		Cockroach  connectors.CockroachDB `yaml:"cockroach"`
+		MigrateDir string `yaml:"migrate_dir"`
+		Driver     string `yaml:"driver"`
+		Postgres   string `yaml:"postgres"`
 	}
 	fileStoreConfig struct {
 		Secure       bool   `yaml:"secure"`
@@ -67,18 +67,10 @@ type (
 		SessionToken string `yaml:"session_token"`
 		Region       string `yaml:"region"`
 	}
-	clients struct {
-		Session string `yaml:"session"`
-	}
-	queueConfig struct {
-		URLs     []string `yaml:"urls"`
-		Username string   `yaml:"username"`
-		Password string   `yaml:"password"`
-	}
 )
 
 var (
-	cfgFile  = &flags.File{DefaultPath: "config.yml", MaxSize: 1024 * 1024}
+	cfgFile  = &flags.File{DefaultPath: "/config.yml", MaxSize: 1024 * 1024}
 	logLevel = &flags.Level{Level: slog.LevelDebug}
 )
 
@@ -124,7 +116,9 @@ func run(ctx context.Context, cfg config, reg *prometheus.Registry, namespace st
 	m := metrics.New(reg, namespace)
 
 	r, err := repo.New(ctx, reg, namespace, repo.Config{
-		Cockroach:  cfg.DB.Cockroach,
+		Postgres: connectors.Raw{
+			Query: cfg.DB.Postgres,
+		},
 		MigrateDir: cfg.DB.MigrateDir,
 		Driver:     cfg.DB.Driver,
 	})
@@ -150,30 +144,10 @@ func run(ctx context.Context, cfg config, reg *prometheus.Registry, namespace st
 		return fmt.Errorf("files.New: %w", err)
 	}
 
-	client, err := session_client.New(ctx, log, reg, namespace, cfg.Clients.Session)
-	if err != nil {
-		return fmt.Errorf("session_client.New: %w", err)
-	}
-	sessionSvc := session_adapter.New(client, convertErr)
-
-	q, err := queue.New(ctx, reg, namespace, queue.Config{
-		URLs:     cfg.Queue.URLs,
-		Username: cfg.Queue.Username,
-		Password: cfg.Queue.Password,
-	})
-	if err != nil {
-		return fmt.Errorf("queue.New: %w", err)
-	}
-	defer func() {
-		err = q.Close()
-		if err != nil {
-			log.Error("close queue connection", slog.String(logger.Error.String(), err.Error()))
-		}
-	}()
-
 	ph := password.New()
 
-	module := app.New(r, ph, sessionSvc, fileStore, q)
+	authModule := auth.New(cfg.AuthKey)
+	module := app.New(r, ph, authModule, idGenerator{}, r, fileStore)
 	grpcAPI := grpc.New(ctx, m, module, reg, namespace)
 
 	httpAPI := http.New(ctx, module)
@@ -196,7 +170,6 @@ func run(ctx context.Context, cfg config, reg *prometheus.Registry, namespace st
 		serve.GRPC(log.With(slog.String(logger.Module.String(), "gRPC")), cfg.Server.Host, cfg.Server.Port.GRPC, grpcAPI),
 		serve.GRPCGateWay(log.With(slog.String(logger.Module.String(), "gRPC-Gateway")), cfg.Server.Host, cfg.Server.Port.GW, gwCfg),
 		serve.HTTP(log.With(slog.String(logger.Module.String(), "files")), cfg.Server.Host, cfg.Server.Port.Files, httpAPI),
-		q.Monitor,
 		module.Process,
 	)
 }
@@ -226,11 +199,20 @@ func forceShutdown(ctx context.Context) {
 
 func convertErr(err error) error {
 	switch {
-	case errors.Is(err, session_client.ErrNotFound):
+	case errors.Is(err, app.ErrNotFound):
 		return app.ErrNotFound
-	case errors.Is(err, session_client.ErrInvalidArgument):
+	case errors.Is(err, app.ErrInvalidArgument):
 		return app.ErrInvalidArgument
 	default:
 		return err
 	}
+}
+
+var _ app.ID = &idGenerator{}
+
+type idGenerator struct{}
+
+// New implements app.ID.
+func (idGenerator) New() uuid.UUID {
+	return uuid.Must(uuid.NewV4())
 }

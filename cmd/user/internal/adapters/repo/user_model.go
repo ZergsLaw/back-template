@@ -4,12 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	dom "github.com/ZergsLaw/back-template/internal/dom"
 	"time"
 
 	"github.com/gofrs/uuid"
-
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
 )
 
 type (

@@ -5,18 +5,20 @@ package app
 type App struct {
 	repo     Repo
 	hash     PasswordHash
+	auth     Auth
+	id       ID
 	sessions Sessions
 	file     FileStore
-	queue    Queue
 }
 
 // New build and returns new App.
-func New(r Repo, ph PasswordHash, a Sessions, f FileStore, q Queue) *App {
+func New(r Repo, ph PasswordHash, a Auth, id ID, s Sessions, f FileStore) *App {
 	return &App{
 		repo:     r,
+		auth:     a,
+		id:       id,
 		hash:     ph,
-		sessions: a,
+		sessions: s,
 		file:     f,
-		queue:    q,
 	}
 }

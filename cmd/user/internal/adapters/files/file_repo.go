@@ -18,7 +18,8 @@ var _ app.FileStore = &Client{}
 
 const (
 	headerSrcName = `src_name`
-	bucketName    = `user.avatars`
+	bucketAvatars = `user.avatars`
+	bucketFile    = `user.files`
 )
 
 type (
@@ -61,10 +62,10 @@ func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Co
 	}
 
 	var lastErr error
-	exist, err := client.BucketExists(ctx, bucketName)
+	exist, err := client.BucketExists(ctx, bucketAvatars)
 	for err != nil {
 		logger.FromContext(ctx).Error("couldn't check bucket", slog.String(logger.Error.String(), err.Error()))
-		exist, err = client.BucketExists(ctx, bucketName)
+		exist, err = client.BucketExists(ctx, bucketAvatars)
 		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
 			return nil, fmt.Errorf("client.BucketExists: %w", lastErr)
 		}
@@ -72,12 +73,38 @@ func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Co
 		lastErr = err
 	}
 
-	err = client.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{
+	err = client.MakeBucket(ctx, bucketAvatars, minio.MakeBucketOptions{
 		Region: cfg.Region,
 	})
 	for !exist && err != nil {
 		logger.FromContext(ctx).Error("couldn't make bucket", slog.String(logger.Error.String(), err.Error()))
-		err = client.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{
+		err = client.MakeBucket(ctx, bucketAvatars, minio.MakeBucketOptions{
+			Region: cfg.Region,
+		})
+		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+			return nil, fmt.Errorf("client.MakeBucket: %w", lastErr)
+		}
+
+		lastErr = err
+	}
+
+	exist, err = client.BucketExists(ctx, bucketFile)
+	for err != nil {
+		logger.FromContext(ctx).Error("couldn't check bucket", slog.String(logger.Error.String(), err.Error()))
+		exist, err = client.BucketExists(ctx, bucketFile)
+		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+			return nil, fmt.Errorf("client.BucketExists: %w", lastErr)
+		}
+
+		lastErr = err
+	}
+
+	err = client.MakeBucket(ctx, bucketFile, minio.MakeBucketOptions{
+		Region: cfg.Region,
+	})
+	for !exist && err != nil {
+		logger.FromContext(ctx).Error("couldn't make bucket", slog.String(logger.Error.String(), err.Error()))
+		err = client.MakeBucket(ctx, bucketFile, minio.MakeBucketOptions{
 			Region: cfg.Region,
 		})
 		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
@@ -91,4 +118,9 @@ func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Co
 		store: client,
 		m:     m,
 	}, nil
+}
+
+// Close implements io.Closer.
+func (*Client) Close() error {
+	return nil
 }

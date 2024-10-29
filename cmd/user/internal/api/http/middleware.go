@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"github.com/ZergsLaw/back-template/cmd/user/internal/session"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
@@ -10,8 +11,6 @@ import (
 
 	"github.com/felixge/httpsnoop"
 	"github.com/gorilla/mux"
-
-	"github.com/ZergsLaw/back-template/internal/adapters/session"
 )
 
 const headerAuthorize = "authorization"
