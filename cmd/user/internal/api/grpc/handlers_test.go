@@ -535,3 +535,33 @@ func TestApi_GetUsersByIDs(t *testing.T) {
 		})
 	}
 }
+
+func TestApi_AddAvatar(t *testing.T) {
+	t.Parallel()
+	var (
+		fileID      = uuid.Must(uuid.NewV4())
+		errInternal = status.Error(codes.Internal, fmt.Sprintf("a.app.AddAvatar: %s", errAny))
+	)
+	testCases := map[string]struct {
+		appErr  error
+		wantErr error
+	}{
+		"success":         {nil, nil},
+		"a.app.AddAvatar": {errAny, errInternal},
+	}
+	for name, tc := range testCases {
+		name, tc := name, tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			ctx, c, mockApp, assert := start(t, dom.UserStatusDefault)
+
+			mockApp.EXPECT().AddAvatar(gomock.Any(), session, fileID).Return(tc.appErr)
+
+			_, err := c.AddAvatar(auth(ctx), &user_pb.AddAvatarRequest{
+				FileId: fileID.String(),
+			})
+			assert.ErrorIs(err, tc.wantErr)
+		})
+	}
+
+}

@@ -13,7 +13,6 @@ import (
 // UploadAvatar implements app.FileStore.
 func (c *Client) UploadAvatar(ctx context.Context, f app.Avatar) (uuid.UUID, error) {
 	id := uuid.Must(uuid.NewV4())
-
 	const partSize = 1024 * 1024 / 2
 	_, err := c.store.PutObject(ctx, bucketAvatars, id.String(), f, f.Size, minio.PutObjectOptions{
 		UserMetadata: map[string]string{
@@ -75,6 +74,7 @@ func (c *Client) UploadFile(ctx context.Context, f app.File) (uuid.UUID, error) 
 	_, err := c.store.PutObject(ctx, bucketFile, id.String(), f, f.Size, minio.PutObjectOptions{
 		UserMetadata: map[string]string{
 			headerSrcName: f.Name,
+			headerUserID:  f.UserID.String(),
 		},
 		ContentType: f.ContentType,
 		PartSize:    partSize,
@@ -84,4 +84,33 @@ func (c *Client) UploadFile(ctx context.Context, f app.File) (uuid.UUID, error) 
 	}
 
 	return id, nil
+}
+
+// DownloadFile implements app.FileStore.
+func (c *Client) DownloadFile(ctx context.Context, id uuid.UUID) (*app.File, error) {
+	file, err := c.store.GetObject(ctx, bucketFile, id.String(), minio.GetObjectOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("c.store.GetObject: %w", err)
+	}
+
+	stat, err := file.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("file.stat: %w", err)
+	}
+
+	if stat.IsDeleteMarker {
+		return nil, app.ErrNotFound
+	}
+
+	f := &app.File{
+		ReadSeekCloser: file,
+		ID:             id,
+		UserID:         uuid.FromStringOrNil(stat.Metadata.Get(headerUserID)),
+		Name:           stat.Metadata.Get(headerSrcName),
+		Size:           stat.Size,
+		ModTime:        stat.LastModified,
+		ContentType:    stat.ContentType,
+	}
+
+	return f, nil
 }

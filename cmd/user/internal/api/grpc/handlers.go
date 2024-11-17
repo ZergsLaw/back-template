@@ -229,3 +229,19 @@ func (a *api) GetUsersByIDs(ctx context.Context, request *user_pb.GetUsersByIDsR
 		Result: pbUsers,
 	}, nil
 }
+
+func (a *api) AddAvatar(ctx context.Context, request *user_pb.AddAvatarRequest) (*user_pb.AddAvatarResponse, error) {
+	userSession := session.FromContext(ctx)
+	if userSession == nil {
+		return nil, ErrUnauthenticated
+	}
+
+	fileID := uuid.FromStringOrNil(request.FileId)
+
+	err := a.app.AddAvatar(ctx, *userSession, fileID)
+	if err != nil {
+		return nil, fmt.Errorf("a.app.AddAvatar: %w", err)
+	}
+
+	return &user_pb.AddAvatarResponse{}, nil
+}

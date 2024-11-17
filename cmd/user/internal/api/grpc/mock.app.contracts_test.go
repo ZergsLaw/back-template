@@ -6,11 +6,11 @@ package grpc_test
 
 import (
 	context "context"
-	"go.uber.org/mock/gomock"
 	reflect "reflect"
 
 	app "github.com/ZergsLaw/back-template/cmd/user/internal/app"
 	uuid "github.com/gofrs/uuid"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // Mockapplication is a mock of application interface.
@@ -34,6 +34,20 @@ func NewMockapplication(ctrl *gomock.Controller) *Mockapplication {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *Mockapplication) EXPECT() *MockapplicationMockRecorder {
 	return m.recorder
+}
+
+// AddAvatar mocks base method.
+func (m *Mockapplication) AddAvatar(ctx context.Context, session app.Session, fileID uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddAvatar", ctx, session, fileID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddAvatar indicates an expected call of AddAvatar.
+func (mr *MockapplicationMockRecorder) AddAvatar(ctx, session, fileID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAvatar", reflect.TypeOf((*Mockapplication)(nil).AddAvatar), ctx, session, fileID)
 }
 
 // Auth mocks base method.

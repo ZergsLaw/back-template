@@ -136,12 +136,12 @@ func (t task) convert() (*app.Task, error) {
 
 func appTaskKind(txt string) app.TaskKind {
 	switch txt {
-	case app.TaskKindEventAdd.String():
-		return app.TaskKindEventAdd
-	case app.TaskKindEventDel.String():
-		return app.TaskKindEventDel
-	case app.TaskKindEventUpdate.String():
-		return app.TaskKindEventUpdate
+	case app.TaskKindEventUserAdd.String():
+		return app.TaskKindEventUserAdd
+	case app.TaskKindEventUserDel.String():
+		return app.TaskKindEventUserDel
+	case app.TaskKindEventUserUpdate.String():
+		return app.TaskKindEventUserUpdate
 	default:
 		panic(fmt.Sprintf("unknown txt: %s", txt))
 	}

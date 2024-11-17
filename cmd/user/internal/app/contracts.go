@@ -69,6 +69,9 @@ type (
 		// UploadFile save new file in database.
 		// Errors: unknown.
 		UploadFile(ctx context.Context, f File) (uuid.UUID, error)
+		//DownloadFile get file by id.
+		// Errors: unknown.
+		DownloadFile(ctx context.Context, id uuid.UUID) (*File, error)
 	}
 
 	// PasswordHash module responsible for hashing password.

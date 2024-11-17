@@ -139,7 +139,7 @@ func TestApp_CreateUser(t *testing.T) {
 				if tc.repoSaveErr == nil && tc.repGetErr == nil {
 					mocks.repo.EXPECT().SaveTask(ctx, app.Task{
 						User: *tc.repoGetRes,
-						Kind: app.TaskKindEventAdd,
+						Kind: app.TaskKindEventUserAdd,
 					}).Return(tc.repoSaveTaskRes, tc.repoSaveTaskErr)
 				}
 			}

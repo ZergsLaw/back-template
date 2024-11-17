@@ -6,12 +6,11 @@ package app_test
 
 import (
 	context "context"
-	"go.uber.org/mock/gomock"
 	reflect "reflect"
 
 	app "github.com/ZergsLaw/back-template/cmd/user/internal/app"
 	uuid "github.com/gofrs/uuid"
-
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockRepo is a mock of Repo interface.
@@ -402,7 +401,7 @@ func (m *MockFileStore) DeleteAvatar(ctx context.Context, id uuid.UUID) error {
 }
 
 // DeleteAvatar indicates an expected call of DeleteAvatar.
-func (mr *MockFileStoreMockRecorder) DeleteFile(ctx, id interface{}) *gomock.Call {
+func (mr *MockFileStoreMockRecorder) DeleteAvatar(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatar", reflect.TypeOf((*MockFileStore)(nil).DeleteAvatar), ctx, id)
 }
@@ -417,9 +416,24 @@ func (m *MockFileStore) DownloadAvatar(ctx context.Context, id uuid.UUID) (*app.
 }
 
 // DownloadAvatar indicates an expected call of DownloadAvatar.
-func (mr *MockFileStoreMockRecorder) DownloadFile(ctx, id interface{}) *gomock.Call {
+func (mr *MockFileStoreMockRecorder) DownloadAvatar(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadAvatar", reflect.TypeOf((*MockFileStore)(nil).DownloadAvatar), ctx, id)
+}
+
+// DownloadFile mocks base method.
+func (m *MockFileStore) DownloadFile(ctx context.Context, id uuid.UUID) (*app.File, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DownloadFile", ctx, id)
+	ret0, _ := ret[0].(*app.File)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DownloadFile indicates an expected call of DownloadFile.
+func (mr *MockFileStoreMockRecorder) DownloadFile(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadFile", reflect.TypeOf((*MockFileStore)(nil).DownloadFile), ctx, id)
 }
 
 // UploadAvatar mocks base method.
@@ -432,9 +446,24 @@ func (m *MockFileStore) UploadAvatar(ctx context.Context, f app.Avatar) (uuid.UU
 }
 
 // UploadAvatar indicates an expected call of UploadAvatar.
-func (mr *MockFileStoreMockRecorder) UploadFile(ctx, f interface{}) *gomock.Call {
+func (mr *MockFileStoreMockRecorder) UploadAvatar(ctx, f interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockFileStore)(nil).UploadAvatar), ctx, f)
+}
+
+// UploadFile mocks base method.
+func (m *MockFileStore) UploadFile(ctx context.Context, f app.File) (uuid.UUID, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadFile", ctx, f)
+	ret0, _ := ret[0].(uuid.UUID)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadFile indicates an expected call of UploadFile.
+func (mr *MockFileStoreMockRecorder) UploadFile(ctx, f interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFile", reflect.TypeOf((*MockFileStore)(nil).UploadFile), ctx, f)
 }
 
 // MockPasswordHash is a mock of PasswordHash interface.

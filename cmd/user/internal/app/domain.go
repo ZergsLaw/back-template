@@ -51,6 +51,7 @@ type (
 	// File contains file information.
 	File struct {
 		ID          uuid.UUID
+		UserID      uuid.UUID
 		Name        string
 		ContentType string
 		Size        int64
@@ -127,9 +128,9 @@ type (
 //go:generate stringer -output=stringer.TaskKind.go -type=TaskKind -trimprefix=TaskKind
 const (
 	_ TaskKind = iota
-	TaskKindEventAdd
-	TaskKindEventDel
-	TaskKindEventUpdate
+	TaskKindEventUserAdd
+	TaskKindEventUserDel
+	TaskKindEventUserUpdate
 )
 
 //go:generate stringer -output=stringer.FileFormat.go -type=FileFormat -trimprefix=FileFormat

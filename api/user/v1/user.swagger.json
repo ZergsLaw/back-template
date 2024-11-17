@@ -45,6 +45,37 @@
         "tags": [
           "UserExternalAPI"
         ]
+      },
+      "post": {
+        "summary": "Add avatar to user.",
+        "operationId": "UserExternalAPI_AddAvatar",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AddAvatarResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AddAvatarRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserExternalAPI"
+        ]
       }
     },
     "/user/api/v1/avatar/list": {
@@ -432,6 +463,17 @@
           }
         }
       }
+    },
+    "v1AddAvatarRequest": {
+      "type": "object",
+      "properties": {
+        "fileId": {
+          "type": "string"
+        }
+      }
+    },
+    "v1AddAvatarResponse": {
+      "type": "object"
     },
     "v1CreateUserRequest": {
       "type": "object",

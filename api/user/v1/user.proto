@@ -4,7 +4,7 @@ package api.user.v1;
 
 import "api/annotations/v1/annotations.proto";
 import "api/user_status/v1/user_status.proto";
-import "buf/validate/validate.proto";
+import "validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
@@ -178,10 +178,30 @@ service UserExternalAPI {
       need_authorization: true,
     };
   }
+
+  // Add avatar to user.
+  rpc AddAvatar(AddAvatarRequest) returns (AddAvatarResponse){
+    option (google.api.http) = {
+      post: "/user/api/v1/avatar",
+      body: "*"
+    };
+    option (api.annotations.v1.method_rule) = {
+      codes: [INVALID_ARGUMENT],
+      need_authorization: true,
+    };
+  }
+}
+
+message AddAvatarRequest{
+  string file_id = 1 [(validate.rules).string = {uuid: true}];
+}
+
+message AddAvatarResponse{
+
 }
 
 message GetUsersByIDsRequest {
-  repeated string ids = 1 [(buf.validate.field).repeated = {
+  repeated string ids = 1 [(validate.rules).repeated = {
     unique: true,
     max_items: 100,
     items {
@@ -195,7 +215,7 @@ message GetUsersByIDsResponse {
 }
 
 message VerificationEmailRequest {
-  string email = 1 [(buf.validate.field).string = {
+  string email = 1 [(validate.rules).string = {
     email: true,
     max_len: 999
   }];
@@ -203,7 +223,7 @@ message VerificationEmailRequest {
 message VerificationEmailResponse {}
 
 message VerificationUsernameRequest {
-  string username = 1 [(buf.validate.field).string = {
+  string username = 1 [(validate.rules).string = {
     min_len: 2,
     max_len: 32
   }];
@@ -211,43 +231,43 @@ message VerificationUsernameRequest {
 message VerificationUsernameResponse {}
 
 message CreateUserRequest {
-  string username = 1 [(buf.validate.field).string = {
+  string username = 1 [(validate.rules).string = {
     min_len: 2,
     max_len: 32
   }];
-  string email = 2 [(buf.validate.field).string = {
+  string email = 2 [(validate.rules).string = {
     email: true,
     max_len: 99
   }];
-  string password = 3 [(buf.validate.field).string = {
+  string password = 3 [(validate.rules).string = {
     min_len: 8,
     max_len: 32
   }];
-  string full_name = 4 [(buf.validate.field).string = {
+  string full_name = 4 [(validate.rules).string = {
     min_len: 2,
     max_len: 100,
   }];
 }
 message CreateUserResponse {
-  string id = 1 [(buf.validate.field).string = {uuid: true}];
+  string id = 1 [(validate.rules).string = {uuid: true}];
 }
 
 message LoginRequest {
-  string email = 1 [(buf.validate.field).string = {
+  string email = 1 [(validate.rules).string = {
     email: true,
     max_len: 99
   }];
-  string password = 2 [(buf.validate.field).string = {
+  string password = 2 [(validate.rules).string = {
     min_len: 8,
     max_len: 32
   }];
 }
 message LoginResponse {
-  string user_id = 1 [(buf.validate.field).string = {uuid: true}];
+  string user_id = 1 [(validate.rules).string = {uuid: true}];
 }
 
 message GetUserRequest {
-  string id = 1 [(buf.validate.field).string = {uuid: true}];
+  string id = 1 [(validate.rules).string = {ignore_empty: true, uuid: true}];
 }
 message GetUserResponse {
   User user = 1;
@@ -255,15 +275,15 @@ message GetUserResponse {
 
 message SearchUsersRequest {
   // We are using this field for searching users by username and full name.
-  string name = 1 [(buf.validate.field).string = {
+  string name = 1 [(validate.rules).string = {
     min_len: 2,
     max_len: 100
   }];
-  int32 limit = 2 [(buf.validate.field).int32 = {
+  int32 limit = 2 [(validate.rules).int32 = {
     gte: 1,
     lte: 500
   }];
-  int32 offset = 3 [(buf.validate.field).int32 = {gte: 0}];
+  int32 offset = 3 [(validate.rules).int32 = {gte: 0}];
 }
 message SearchUsersResponse {
   repeated User users = 1;
@@ -274,11 +294,11 @@ message LogoutRequest {}
 message LogoutResponse {}
 
 message UpdatePasswordRequest {
-  string old = 1 [(buf.validate.field).string = {
+  string old = 1 [(validate.rules).string = {
     min_len: 8,
     max_len: 32
   }];
-  string new = 2 [(buf.validate.field).string = {
+  string new = 2 [(validate.rules).string = {
     min_len: 8,
     max_len: 32
   }];
@@ -286,12 +306,12 @@ message UpdatePasswordRequest {
 message UpdatePasswordResponse {}
 
 message UpdateUserRequest {
-  string username = 1 [(buf.validate.field).string = {
+  string username = 1 [(validate.rules).string = {
     min_len: 2,
     max_len: 32
   }];
-  string avatar_id = 2 [(buf.validate.field).string = {uuid: true}];
-  string full_name = 3 [(buf.validate.field).string = {
+  string avatar_id = 2 [(validate.rules).string = {uuid: true}];
+  string full_name = 3 [(validate.rules).string = {
     min_len: 2,
     max_len: 100,
   }];
@@ -299,21 +319,21 @@ message UpdateUserRequest {
 message UpdateUserResponse {}
 
 message User {
-  string id = 1 [(buf.validate.field).string = {uuid: true}];
-  string username = 2 [(buf.validate.field).string = {
+  string id = 1 [(validate.rules).string = {uuid: true}];
+  string username = 2 [(validate.rules).string = {
     min_len: 2,
     max_len: 32
   }];
-  string email = 3 [(buf.validate.field).string = {
+  string email = 3 [(validate.rules).string = {
     email: true,
     max_len: 99
   }];
-  string avatar_id = 4 [(buf.validate.field).string = {uuid: true}];
-  api.user_status.v1.StatusKind kind = 5 [(buf.validate.field).enum = {
+  string avatar_id = 4 [(validate.rules).string = {uuid: true}];
+  api.user_status.v1.StatusKind kind = 5 [(validate.rules).enum = {
     defined_only: true,
     not_in: [0]
   }];
-  string full_name = 6 [(buf.validate.field).string = {
+  string full_name = 6 [(validate.rules).string = {
     min_len: 2,
     max_len: 100,
   }];
@@ -322,7 +342,7 @@ message User {
 }
 
 message RemoveAvatarRequest {
-  string file_id = 1 [(buf.validate.field).string = {uuid: true}];
+  string file_id = 1 [(validate.rules).string = {uuid: true}];
 }
 message RemoveAvatarResponse {}
 
@@ -334,6 +354,6 @@ message ListUserAvatarResponse {
 }
 
 message UserAvatar {
-  string user_id = 1 [(buf.validate.field).string = {uuid: true}];
-  string file_id = 2 [(buf.validate.field).string = {uuid: true}];
+  string user_id = 1 [(validate.rules).string = {uuid: true}];
+  string file_id = 2 [(validate.rules).string = {uuid: true}];
 }

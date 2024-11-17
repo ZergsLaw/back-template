@@ -66,7 +66,7 @@ func (a *App) CreateUser(ctx context.Context, email, username, fullName, passwor
 
 		task := Task{
 			User: *u,
-			Kind: TaskKindEventAdd,
+			Kind: TaskKindEventUserAdd,
 		}
 
 		_, err = repo.SaveTask(ctx, task)

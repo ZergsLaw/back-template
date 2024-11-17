@@ -40,6 +40,8 @@ type application interface {
 	RemoveAvatar(ctx context.Context, session app.Session, fileID uuid.UUID) error
 	ListUserAvatars(ctx context.Context, session app.Session) ([]app.AvatarInfo, error)
 	GetUsersByIDs(ctx context.Context, session app.Session, ids []uuid.UUID) ([]app.User, error)
+
+	AddAvatar(ctx context.Context, session app.Session, fileID uuid.UUID) error
 }
 
 type api struct {
@@ -75,6 +77,7 @@ func New(ctx context.Context, m metrics.Metrics, applications application, reg *
 			"RemoveAvatar":         true,
 			"ListUserAvatar":       true,
 			"GetUsersByIDs":        true,
+			"AddAvatar":            true,
 		},
 	})
 

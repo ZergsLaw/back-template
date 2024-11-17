@@ -31,11 +31,11 @@ func (a *App) Process(ctx context.Context) error {
 			return nil
 		case task := <-tasks:
 			switch task.Body().Kind {
-			case TaskKindEventAdd:
+			case TaskKindEventUserAdd:
 				err = a.handleTaskKindEventAdd(ctx, task.Body())
-			case TaskKindEventDel:
+			case TaskKindEventUserDel:
 				err = a.handleTaskKindEventDel(ctx, task.Body())
-			case TaskKindEventUpdate:
+			case TaskKindEventUserUpdate:
 				err = a.handleTaskKindEventUpdate(ctx, task.Body())
 			default:
 				log.Error("unknown task",

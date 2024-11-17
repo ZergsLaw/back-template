@@ -39,6 +39,231 @@ var (
 	_ = pb.StatusKind(0)
 )
 
+// define the regex for a UUID once up-front
+var _user_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
+// Validate checks the field values on AddAvatarRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AddAvatarRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddAvatarRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddAvatarRequestMultiError, or nil if none found.
+func (m *AddAvatarRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddAvatarRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetFileId()); err != nil {
+		err = AddAvatarRequestValidationError{
+			field:  "FileId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return AddAvatarRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddAvatarRequest) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// AddAvatarRequestMultiError is an error wrapping multiple validation errors
+// returned by AddAvatarRequest.ValidateAll() if the designated constraints
+// aren't met.
+type AddAvatarRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddAvatarRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddAvatarRequestMultiError) AllErrors() []error { return m }
+
+// AddAvatarRequestValidationError is the validation error returned by
+// AddAvatarRequest.Validate if the designated constraints aren't met.
+type AddAvatarRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddAvatarRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddAvatarRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddAvatarRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddAvatarRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddAvatarRequestValidationError) ErrorName() string { return "AddAvatarRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e AddAvatarRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddAvatarRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddAvatarRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddAvatarRequestValidationError{}
+
+// Validate checks the field values on AddAvatarResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AddAvatarResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddAvatarResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddAvatarResponseMultiError, or nil if none found.
+func (m *AddAvatarResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddAvatarResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AddAvatarResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddAvatarResponseMultiError is an error wrapping multiple validation errors
+// returned by AddAvatarResponse.ValidateAll() if the designated constraints
+// aren't met.
+type AddAvatarResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddAvatarResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddAvatarResponseMultiError) AllErrors() []error { return m }
+
+// AddAvatarResponseValidationError is the validation error returned by
+// AddAvatarResponse.Validate if the designated constraints aren't met.
+type AddAvatarResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddAvatarResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddAvatarResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddAvatarResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddAvatarResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddAvatarResponseValidationError) ErrorName() string {
+	return "AddAvatarResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddAvatarResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddAvatarResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddAvatarResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddAvatarResponseValidationError{}
+
 // Validate checks the field values on GetUsersByIDsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -61,8 +286,59 @@ func (m *GetUsersByIDsRequest) validate(all bool) error {
 
 	var errors []error
 
+	if len(m.GetIds()) > 100 {
+		err := GetUsersByIDsRequestValidationError{
+			field:  "Ids",
+			reason: "value must contain no more than 100 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	_GetUsersByIDsRequest_Ids_Unique := make(map[string]struct{}, len(m.GetIds()))
+
+	for idx, item := range m.GetIds() {
+		_, _ = idx, item
+
+		if _, exists := _GetUsersByIDsRequest_Ids_Unique[item]; exists {
+			err := GetUsersByIDsRequestValidationError{
+				field:  fmt.Sprintf("Ids[%v]", idx),
+				reason: "repeated value must contain unique items",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+			_GetUsersByIDsRequest_Ids_Unique[item] = struct{}{}
+		}
+
+		if err := m._validateUuid(item); err != nil {
+			err = GetUsersByIDsRequestValidationError{
+				field:  fmt.Sprintf("Ids[%v]", idx),
+				reason: "value must be a valid UUID",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return GetUsersByIDsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUsersByIDsRequest) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -299,13 +575,84 @@ func (m *VerificationEmailRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Email
+	if utf8.RuneCountInString(m.GetEmail()) > 999 {
+		err := VerificationEmailRequestValidationError{
+			field:  "Email",
+			reason: "value length must be at most 999 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		err = VerificationEmailRequestValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return VerificationEmailRequestMultiError(errors)
 	}
 
 	return nil
+}
+
+func (m *VerificationEmailRequest) _validateHostname(host string) error {
+	s := strings.ToLower(strings.TrimSuffix(host, "."))
+
+	if len(host) > 253 {
+		return errors.New("hostname cannot exceed 253 characters")
+	}
+
+	for _, part := range strings.Split(s, ".") {
+		if l := len(part); l == 0 || l > 63 {
+			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
+		}
+
+		if part[0] == '-' {
+			return errors.New("hostname parts cannot begin with hyphens")
+		}
+
+		if part[len(part)-1] == '-' {
+			return errors.New("hostname parts cannot end with hyphens")
+		}
+
+		for _, r := range part {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *VerificationEmailRequest) _validateEmail(addr string) error {
+	a, err := mail.ParseAddress(addr)
+	if err != nil {
+		return err
+	}
+	addr = a.Address
+
+	if len(addr) > 254 {
+		return errors.New("email addresses cannot exceed 254 characters")
+	}
+
+	parts := strings.SplitN(addr, "@", 2)
+
+	if len(parts[0]) > 64 {
+		return errors.New("email address local phrase cannot exceed 64 characters")
+	}
+
+	return m._validateHostname(parts[1])
 }
 
 // VerificationEmailRequestMultiError is an error wrapping multiple validation
@@ -505,7 +852,16 @@ func (m *VerificationUsernameRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Username
+	if l := utf8.RuneCountInString(m.GetUsername()); l < 2 || l > 32 {
+		err := VerificationUsernameRequestValidationError{
+			field:  "Username",
+			reason: "value length must be between 2 and 32 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return VerificationUsernameRequestMultiError(errors)
@@ -713,19 +1069,117 @@ func (m *CreateUserRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Username
+	if l := utf8.RuneCountInString(m.GetUsername()); l < 2 || l > 32 {
+		err := CreateUserRequestValidationError{
+			field:  "Username",
+			reason: "value length must be between 2 and 32 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Email
+	if utf8.RuneCountInString(m.GetEmail()) > 99 {
+		err := CreateUserRequestValidationError{
+			field:  "Email",
+			reason: "value length must be at most 99 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Password
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		err = CreateUserRequestValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for FullName
+	if l := utf8.RuneCountInString(m.GetPassword()); l < 8 || l > 32 {
+		err := CreateUserRequestValidationError{
+			field:  "Password",
+			reason: "value length must be between 8 and 32 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetFullName()); l < 2 || l > 100 {
+		err := CreateUserRequestValidationError{
+			field:  "FullName",
+			reason: "value length must be between 2 and 100 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return CreateUserRequestMultiError(errors)
 	}
 
 	return nil
+}
+
+func (m *CreateUserRequest) _validateHostname(host string) error {
+	s := strings.ToLower(strings.TrimSuffix(host, "."))
+
+	if len(host) > 253 {
+		return errors.New("hostname cannot exceed 253 characters")
+	}
+
+	for _, part := range strings.Split(s, ".") {
+		if l := len(part); l == 0 || l > 63 {
+			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
+		}
+
+		if part[0] == '-' {
+			return errors.New("hostname parts cannot begin with hyphens")
+		}
+
+		if part[len(part)-1] == '-' {
+			return errors.New("hostname parts cannot end with hyphens")
+		}
+
+		for _, r := range part {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateUserRequest) _validateEmail(addr string) error {
+	a, err := mail.ParseAddress(addr)
+	if err != nil {
+		return err
+	}
+	addr = a.Address
+
+	if len(addr) > 254 {
+		return errors.New("email addresses cannot exceed 254 characters")
+	}
+
+	parts := strings.SplitN(addr, "@", 2)
+
+	if len(parts[0]) > 64 {
+		return errors.New("email address local phrase cannot exceed 64 characters")
+	}
+
+	return m._validateHostname(parts[1])
 }
 
 // CreateUserRequestMultiError is an error wrapping multiple validation errors
@@ -823,10 +1277,28 @@ func (m *CreateUserResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if err := m._validateUuid(m.GetId()); err != nil {
+		err = CreateUserResponseValidationError{
+			field:  "Id",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return CreateUserResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *CreateUserResponse) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -927,15 +1399,95 @@ func (m *LoginRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Email
+	if utf8.RuneCountInString(m.GetEmail()) > 99 {
+		err := LoginRequestValidationError{
+			field:  "Email",
+			reason: "value length must be at most 99 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Password
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		err = LoginRequestValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetPassword()); l < 8 || l > 32 {
+		err := LoginRequestValidationError{
+			field:  "Password",
+			reason: "value length must be between 8 and 32 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return LoginRequestMultiError(errors)
 	}
 
 	return nil
+}
+
+func (m *LoginRequest) _validateHostname(host string) error {
+	s := strings.ToLower(strings.TrimSuffix(host, "."))
+
+	if len(host) > 253 {
+		return errors.New("hostname cannot exceed 253 characters")
+	}
+
+	for _, part := range strings.Split(s, ".") {
+		if l := len(part); l == 0 || l > 63 {
+			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
+		}
+
+		if part[0] == '-' {
+			return errors.New("hostname parts cannot begin with hyphens")
+		}
+
+		if part[len(part)-1] == '-' {
+			return errors.New("hostname parts cannot end with hyphens")
+		}
+
+		for _, r := range part {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *LoginRequest) _validateEmail(addr string) error {
+	a, err := mail.ParseAddress(addr)
+	if err != nil {
+		return err
+	}
+	addr = a.Address
+
+	if len(addr) > 254 {
+		return errors.New("email addresses cannot exceed 254 characters")
+	}
+
+	parts := strings.SplitN(addr, "@", 2)
+
+	if len(parts[0]) > 64 {
+		return errors.New("email address local phrase cannot exceed 64 characters")
+	}
+
+	return m._validateHostname(parts[1])
 }
 
 // LoginRequestMultiError is an error wrapping multiple validation errors
@@ -1030,10 +1582,28 @@ func (m *LoginResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UserId
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = LoginResponseValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return LoginResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *LoginResponse) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1132,10 +1702,32 @@ func (m *GetUserRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if m.GetId() != "" {
+
+		if err := m._validateUuid(m.GetId()); err != nil {
+			err = GetUserRequestValidationError{
+				field:  "Id",
+				reason: "value must be a valid UUID",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
 
 	if len(errors) > 0 {
 		return GetUserRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserRequest) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1363,11 +1955,38 @@ func (m *SearchUsersRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Name
+	if l := utf8.RuneCountInString(m.GetName()); l < 2 || l > 100 {
+		err := SearchUsersRequestValidationError{
+			field:  "Name",
+			reason: "value length must be between 2 and 100 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Limit
+	if val := m.GetLimit(); val < 1 || val > 500 {
+		err := SearchUsersRequestValidationError{
+			field:  "Limit",
+			reason: "value must be inside range [1, 500]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Offset
+	if m.GetOffset() < 0 {
+		err := SearchUsersRequestValidationError{
+			field:  "Offset",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return SearchUsersRequestMultiError(errors)
@@ -1809,9 +2428,27 @@ func (m *UpdatePasswordRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Old
+	if l := utf8.RuneCountInString(m.GetOld()); l < 8 || l > 32 {
+		err := UpdatePasswordRequestValidationError{
+			field:  "Old",
+			reason: "value length must be between 8 and 32 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for New
+	if l := utf8.RuneCountInString(m.GetNew()); l < 8 || l > 32 {
+		err := UpdatePasswordRequestValidationError{
+			field:  "New",
+			reason: "value length must be between 8 and 32 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return UpdatePasswordRequestMultiError(errors)
@@ -2017,14 +2654,50 @@ func (m *UpdateUserRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Username
+	if l := utf8.RuneCountInString(m.GetUsername()); l < 2 || l > 32 {
+		err := UpdateUserRequestValidationError{
+			field:  "Username",
+			reason: "value length must be between 2 and 32 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for AvatarId
+	if err := m._validateUuid(m.GetAvatarId()); err != nil {
+		err = UpdateUserRequestValidationError{
+			field:  "AvatarId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for FullName
+	if l := utf8.RuneCountInString(m.GetFullName()); l < 2 || l > 100 {
+		err := UpdateUserRequestValidationError{
+			field:  "FullName",
+			reason: "value length must be between 2 and 100 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return UpdateUserRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UpdateUserRequest) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2226,17 +2899,96 @@ func (m *User) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if err := m._validateUuid(m.GetId()); err != nil {
+		err = UserValidationError{
+			field:  "Id",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Username
+	if l := utf8.RuneCountInString(m.GetUsername()); l < 2 || l > 32 {
+		err := UserValidationError{
+			field:  "Username",
+			reason: "value length must be between 2 and 32 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Email
+	if utf8.RuneCountInString(m.GetEmail()) > 99 {
+		err := UserValidationError{
+			field:  "Email",
+			reason: "value length must be at most 99 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for AvatarId
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		err = UserValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Kind
+	if err := m._validateUuid(m.GetAvatarId()); err != nil {
+		err = UserValidationError{
+			field:  "AvatarId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for FullName
+	if _, ok := _User_Kind_NotInLookup[m.GetKind()]; ok {
+		err := UserValidationError{
+			field:  "Kind",
+			reason: "value must not be in list [STATUS_KIND_NONE]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := pb.StatusKind_name[int32(m.GetKind())]; !ok {
+		err := UserValidationError{
+			field:  "Kind",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetFullName()); l < 2 || l > 100 {
+		err := UserValidationError{
+			field:  "FullName",
+			reason: "value length must be between 2 and 100 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if all {
 		switch v := interface{}(m.GetCreatedAt()).(type) {
@@ -2298,6 +3050,64 @@ func (m *User) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return UserMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *User) _validateHostname(host string) error {
+	s := strings.ToLower(strings.TrimSuffix(host, "."))
+
+	if len(host) > 253 {
+		return errors.New("hostname cannot exceed 253 characters")
+	}
+
+	for _, part := range strings.Split(s, ".") {
+		if l := len(part); l == 0 || l > 63 {
+			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
+		}
+
+		if part[0] == '-' {
+			return errors.New("hostname parts cannot begin with hyphens")
+		}
+
+		if part[len(part)-1] == '-' {
+			return errors.New("hostname parts cannot end with hyphens")
+		}
+
+		for _, r := range part {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *User) _validateEmail(addr string) error {
+	a, err := mail.ParseAddress(addr)
+	if err != nil {
+		return err
+	}
+	addr = a.Address
+
+	if len(addr) > 254 {
+		return errors.New("email addresses cannot exceed 254 characters")
+	}
+
+	parts := strings.SplitN(addr, "@", 2)
+
+	if len(parts[0]) > 64 {
+		return errors.New("email address local phrase cannot exceed 64 characters")
+	}
+
+	return m._validateHostname(parts[1])
+}
+
+func (m *User) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2373,6 +3183,10 @@ var _ interface {
 	ErrorName() string
 } = UserValidationError{}
 
+var _User_Kind_NotInLookup = map[pb.StatusKind]struct{}{
+	0: {},
+}
+
 // Validate checks the field values on RemoveAvatarRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2395,10 +3209,28 @@ func (m *RemoveAvatarRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for FileId
+	if err := m._validateUuid(m.GetFileId()); err != nil {
+		err = RemoveAvatarRequestValidationError{
+			field:  "FileId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return RemoveAvatarRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *RemoveAvatarRequest) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2841,12 +3673,40 @@ func (m *UserAvatar) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UserId
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = UserAvatarValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for FileId
+	if err := m._validateUuid(m.GetFileId()); err != nil {
+		err = UserAvatarValidationError{
+			field:  "FileId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return UserAvatarMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UserAvatar) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil

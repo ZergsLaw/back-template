@@ -18,6 +18,7 @@ var _ app.FileStore = &Client{}
 
 const (
 	headerSrcName = `src_name`
+	headerUserID  = `user_id`
 	bucketAvatars = `user.avatars`
 	bucketFile    = `user.files`
 )

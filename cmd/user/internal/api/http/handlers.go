@@ -173,6 +173,7 @@ func (a *api) uploadFile(w http.ResponseWriter, r *http.Request) {
 
 	f := app.File{
 		Name:           handler.Filename,
+		UserID:         userSession.UserID,
 		ContentType:    contentType,
 		Size:           handler.Size,
 		ReadSeekCloser: file,

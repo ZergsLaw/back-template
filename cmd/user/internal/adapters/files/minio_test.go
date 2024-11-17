@@ -33,7 +33,7 @@ func TestClient_Smoke(t *testing.T) {
 	st, err := fImg.Stat()
 	assert.NoError(err)
 
-	id, err := fileStore.UploadFile(ctx, app.Avatar{
+	id, err := fileStore.UploadFile(ctx, app.File{
 		ID:             imgID,
 		Name:           fImg.Name(),
 		ContentType:    getContentType(t, assert, fImg),

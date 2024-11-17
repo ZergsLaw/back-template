@@ -95,11 +95,11 @@ func TestRepo_Smoke(t *testing.T) {
 
 	taskAdd := app.Task{
 		User: user,
-		Kind: app.TaskKindEventAdd,
+		Kind: app.TaskKindEventUserAdd,
 	}
 	taskDel := app.Task{
 		User: user,
-		Kind: app.TaskKindEventDel,
+		Kind: app.TaskKindEventUserDel,
 	}
 	taskDel.User.PassHash = nil
 
@@ -253,11 +253,11 @@ func TestRepo_Tx(t *testing.T) {
 
 		taskAdd := app.Task{
 			User: user,
-			Kind: app.TaskKindEventAdd,
+			Kind: app.TaskKindEventUserAdd,
 		}
 		taskDel := app.Task{
 			User: user,
-			Kind: app.TaskKindEventDel,
+			Kind: app.TaskKindEventUserDel,
 		}
 		taskDel.User.PassHash = nil
 
