@@ -9,10 +9,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	user_pb "github.com/ZergsLaw/back-template/api/user/v1"
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
-	"github.com/ZergsLaw/back-template/internal/queue"
+	user_pb "github.com/Bar-Nik/back-template/api/user/v1"
+	"github.com/Bar-Nik/back-template/cmd/user/internal/app"
+	"github.com/Bar-Nik/back-template/internal/dom"
+	"github.com/Bar-Nik/back-template/internal/queue"
 )
 
 var _ app.Queue = &Client{}

@@ -8,7 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/o1egl/paseto/v2"
 
-	"github.com/ZergsLaw/back-template/cmd/session/internal/app"
+	"github.com/Bar-Nik/back-template/cmd/session/internal/app"
 )
 
 var _ app.Auth = &Auth{}

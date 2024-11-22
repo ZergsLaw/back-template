@@ -9,7 +9,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/ZergsLaw/back-template/internal/logger"
+	"github.com/Bar-Nik/back-template/internal/logger"
 )
 
 const (

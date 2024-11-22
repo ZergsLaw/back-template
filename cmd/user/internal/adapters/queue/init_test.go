@@ -1,18 +1,21 @@
+//go:build integration
+
 package queue_test
 
 import (
 	"context"
+	"log/slog"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
 	"github.com/ZergsLaw/back-template/cmd/user/internal/adapters/queue"
 	"github.com/ZergsLaw/back-template/internal/logger"
 	que "github.com/ZergsLaw/back-template/internal/queue"
 	"github.com/ZergsLaw/back-template/internal/testhelper"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/require"
-	"log/slog"
-	"os"
-	"path/filepath"
-	"strings"
-	"testing"
 )
 
 const (

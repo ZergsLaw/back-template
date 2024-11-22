@@ -8,7 +8,7 @@ import (
 
 	"github.com/lib/pq"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	"github.com/Bar-Nik/back-template/cmd/user/internal/app"
 )
 
 const (

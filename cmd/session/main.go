@@ -18,16 +18,16 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"gopkg.in/yaml.v3"
 
-	"github.com/ZergsLaw/back-template/cmd/session/internal/adapters/queue"
-	"github.com/ZergsLaw/back-template/cmd/session/internal/adapters/repo"
-	"github.com/ZergsLaw/back-template/cmd/session/internal/api"
-	"github.com/ZergsLaw/back-template/cmd/session/internal/app"
-	"github.com/ZergsLaw/back-template/cmd/session/internal/auth"
-	"github.com/ZergsLaw/back-template/internal/flags"
-	"github.com/ZergsLaw/back-template/internal/grpchelper"
-	"github.com/ZergsLaw/back-template/internal/logger"
-	"github.com/ZergsLaw/back-template/internal/metrics"
-	"github.com/ZergsLaw/back-template/internal/serve"
+	"github.com/Bar-Nik/back-template/cmd/session/internal/adapters/queue"
+	"github.com/Bar-Nik/back-template/cmd/session/internal/adapters/repo"
+	"github.com/Bar-Nik/back-template/cmd/session/internal/api"
+	"github.com/Bar-Nik/back-template/cmd/session/internal/app"
+	"github.com/Bar-Nik/back-template/cmd/session/internal/auth"
+	"github.com/Bar-Nik/back-template/internal/flags"
+	"github.com/Bar-Nik/back-template/internal/grpchelper"
+	"github.com/Bar-Nik/back-template/internal/logger"
+	"github.com/Bar-Nik/back-template/internal/metrics"
+	"github.com/Bar-Nik/back-template/internal/serve"
 )
 
 type (

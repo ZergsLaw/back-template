@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/ZergsLaw/back-template/cmd/session/internal/app"
-	"github.com/ZergsLaw/back-template/internal/testhelper"
+	"github.com/Bar-Nik/back-template/cmd/session/internal/app"
+	"github.com/Bar-Nik/back-template/internal/testhelper"
 )
 
 var (

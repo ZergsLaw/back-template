@@ -3,7 +3,7 @@ package session
 import (
 	"context"
 
-	"github.com/ZergsLaw/back-template/internal/dom"
+	"github.com/Bar-Nik/back-template/internal/dom"
 )
 
 type ctxMarker struct{}

@@ -59,7 +59,7 @@ tasks:
   up:
     dir: '{{.USER_WORKING_DIR}}'
     deps:
-      - "init"
+#      - "init"
       - "build"
     dotenv:
       - ".env"

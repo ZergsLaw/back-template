@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api.user_status.v1;
 
-option go_package = "github.com/ZergsLaw/back-template/api/user_status/v1;pb";
+option go_package = "github.com/Bar-Nik/back-template/api/user/v1;pb";
 
 // Kind of user`s status.
 enum StatusKind {
