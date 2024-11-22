@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/ZergsLaw/back-template/cmd/session/client"
-	"github.com/ZergsLaw/back-template/internal/adapters/session"
-	"github.com/ZergsLaw/back-template/internal/dom"
-	"github.com/ZergsLaw/back-template/internal/testhelper"
+	"github.com/Bar-Nik/back-template/cmd/session/client"
+	"github.com/Bar-Nik/back-template/internal/adapters/session"
+	"github.com/Bar-Nik/back-template/internal/dom"
+	"github.com/Bar-Nik/back-template/internal/testhelper"
 )
 
 var (

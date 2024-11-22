@@ -15,10 +15,10 @@ import (
 	"github.com/sipki-tech/database/connectors"
 	"github.com/sipki-tech/database/migrations"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	"github.com/Bar-Nik/back-template/cmd/user/internal/app"
 )
 
-var _ app.Repo = &Repo{}
+var _ app.Repo = &Repo{} // как это работает? и для чего?
 
 type (
 	// Config provide connection info for database.
@@ -36,9 +36,9 @@ type (
 // New build and returns user db.
 func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Config) (*Repo, error) {
 	const subsystem = "repo"
-	m := database.NewMetrics(reg, namespace, subsystem, new(app.Repo))
+	m := database.NewMetrics(reg, namespace, subsystem, new(app.Repo)) // метрики для bd?
 
-	returnErrs := []error{ // List of app.Err… returned by Repo methods.
+	returnErrs := []error{ // List of app.Err… returned by Repo methods.                                 // Тут те ошибки которые сами приписываем, при работе с bd?
 		app.ErrNotFound,
 		app.ErrUsernameExist,
 		app.ErrEmailExist,
@@ -55,7 +55,7 @@ func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Co
 		return nil, fmt.Errorf("migrations.Run: %w", err)
 	}
 
-	conn, err := database.NewSQL(ctx, cfg.Driver, database.SQLConfig{
+	conn, err := database.NewSQL(ctx, cfg.Driver, database.SQLConfig{ // ? не понял этот блок
 		Metrics:    m,
 		ReturnErrs: returnErrs,
 	}, &cfg.Cockroach)
@@ -75,7 +75,7 @@ func (r *Repo) Close() error {
 
 // Save for implements app.Repo.
 func (r *Repo) Save(ctx context.Context, u app.User) (id uuid.UUID, err error) {
-	err = r.sql.NoTx(func(db *sqlx.DB) error {
+	err = r.sql.NoTx(func(db *sqlx.DB) error { // ? прочитал описание не понял
 		newUser := convert(u)
 		const query = `
 		insert into 
@@ -86,7 +86,7 @@ func (r *Repo) Save(ctx context.Context, u app.User) (id uuid.UUID, err error) {
 		returning id
 		`
 
-		err := db.GetContext(ctx, &id, query, newUser.Email, newUser.Name, newUser.FullName, newUser.PassHash, newUser.Status)
+		err := db.GetContext(ctx, &id, query, newUser.Email, newUser.Name, newUser.FullName, newUser.PassHash, newUser.Status) // почему так? почему только id с &?
 		if err != nil {
 			return fmt.Errorf("db.GetContext: %w", convertErr(err))
 		}
@@ -219,7 +219,7 @@ func (r *Repo) ByUsername(ctx context.Context, username string) (u *app.User, er
 }
 
 // SearchUsers for implements app.Repo.
-func (r *Repo) SearchUsers(ctx context.Context, params app.SearchParams) (users []app.User, total int, err error) {
+func (r *Repo) SearchUsers(ctx context.Context, params app.SearchParams) (users []app.User, total int, err error) { // не понял как в этой функции выполняется запрос
 	err = r.sql.NoTx(func(db *sqlx.DB) error {
 		query, args, err := getUsers(params)
 		if err != nil {
@@ -368,7 +368,7 @@ func (r *Repo) GetCountAvatars(ctx context.Context, ownerID uuid.UUID) (total in
 }
 
 // SaveTask implements app.Repo.
-func (r *Repo) SaveTask(ctx context.Context, task app.Task) (id uuid.UUID, err error) {
+func (r *Repo) SaveTask(ctx context.Context, task app.Task) (id uuid.UUID, err error) { // для чего этот блок и следующий
 	err = r.sql.NoTx(func(db *sqlx.DB) error {
 		newTask, err := convertTask(task)
 		if err != nil {
@@ -472,7 +472,7 @@ func (r *Repo) UsersByIDs(ctx context.Context, ids []uuid.UUID) (users []app.Use
 }
 
 // Tx implements app.Repo.
-func (r *Repo) Tx(ctx context.Context, f func(app.Repo) error) error {
+func (r *Repo) Tx(ctx context.Context, f func(app.Repo) error) error { // Зачем?
 	opt := &sql.TxOptions{
 		Isolation: sql.LevelSerializable,
 		ReadOnly:  false,

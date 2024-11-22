@@ -2,7 +2,5 @@ syntax = "proto3";
 
 package api.errors.v1;
 
-import "google/protobuf/descriptor.proto";
-import "google/rpc/code.proto";
 
-option go_package = "github.com/ZergsLaw/back-template/api/errors/v1;pb";
+option go_package = "github.com/Bar-Nik/back-template/api/user/v1;pb";

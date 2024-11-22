@@ -17,6 +17,9 @@
   ],
   "paths": {},
   "definitions": {
+    "apisessionv1DeleteResponse": {
+      "type": "object"
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -44,9 +47,6 @@
           }
         }
       }
-    },
-    "v1DeleteResponse": {
-      "type": "object"
     },
     "v1GetResponse": {
       "type": "object",

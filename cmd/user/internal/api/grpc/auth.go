@@ -7,8 +7,8 @@ import (
 
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/adapters/session"
+	"github.com/Bar-Nik/back-template/cmd/user/internal/app"
+	"github.com/Bar-Nik/back-template/internal/adapters/session"
 )
 
 // AuthFuncOverride implements grpc_auth.ServiceAuthFuncOverride.

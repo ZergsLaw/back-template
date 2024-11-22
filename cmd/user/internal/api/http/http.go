@@ -9,9 +9,9 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
-	"github.com/ZergsLaw/back-template/internal/logger"
+	"github.com/Bar-Nik/back-template/cmd/user/internal/app"
+	"github.com/Bar-Nik/back-template/internal/dom"
+	"github.com/Bar-Nik/back-template/internal/logger"
 )
 
 var (

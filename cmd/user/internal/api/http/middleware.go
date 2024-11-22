@@ -11,7 +11,7 @@ import (
 	"github.com/felixge/httpsnoop"
 	"github.com/gorilla/mux"
 
-	"github.com/ZergsLaw/back-template/internal/adapters/session"
+	"github.com/Bar-Nik/back-template/internal/adapters/session"
 )
 
 const headerAuthorize = "authorization"

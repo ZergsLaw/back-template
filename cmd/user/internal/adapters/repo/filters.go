@@ -6,7 +6,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	"github.com/Bar-Nik/back-template/cmd/user/internal/app"
 )
 
 type searchUsers struct {

@@ -16,8 +16,8 @@ import (
 	"github.com/sipki-tech/database/connectors"
 	"github.com/sipki-tech/database/migrations"
 
-	"github.com/ZergsLaw/back-template/cmd/session/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
+	"github.com/Bar-Nik/back-template/cmd/session/internal/app"
+	"github.com/Bar-Nik/back-template/internal/dom"
 )
 
 var _ app.Repo = &Repo{}

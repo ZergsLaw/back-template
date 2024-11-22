@@ -16,12 +16,12 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
-	pb "github.com/ZergsLaw/back-template/api/user/v1"
-	grpcapi "github.com/ZergsLaw/back-template/cmd/user/internal/api/grpc"
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
-	"github.com/ZergsLaw/back-template/internal/metrics"
-	"github.com/ZergsLaw/back-template/internal/testhelper"
+	pb "github.com/Bar-Nik/back-template/api/user/v1"
+	grpcapi "github.com/Bar-Nik/back-template/cmd/user/internal/api/grpc"
+	"github.com/Bar-Nik/back-template/cmd/user/internal/app"
+	"github.com/Bar-Nik/back-template/internal/dom"
+	"github.com/Bar-Nik/back-template/internal/metrics"
+	"github.com/Bar-Nik/back-template/internal/testhelper"
 )
 
 var (

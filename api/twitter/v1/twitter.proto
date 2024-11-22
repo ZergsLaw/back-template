@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package api.twitter.v1;
+
+import "api/annotations/v1/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+
+
+option go_package = "github.com/Bar-Nik/back-template/api/user/v1;pb";
+
+service Twitter {
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse ) {
+    option (google.api.http) = {
+      post: "/twitter/api/v1/post", 
+      body: "*"                    
+    };
+    option (api.annotations.v1.method_rule) = {
+      codes: [
+        INVALID_ARGUMENT,
+        ALREADY_EXISTS
+      ]
+    };
+}
+  rpc DeletePost(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {delete: "/twitter/api/v1/post"};
+    option (api.annotations.v1.method_rule) = {
+      codes: [INVALID_ARGUMENT],
+      need_authorization: true,
+    };
+  }
+  rpc GetPost(GetPostRequest) returns (GetPostResponse) {
+    option (google.api.http) = {
+      get: "/twitter/api/v1/post",
+      response_body: "*"
+    };
+    option (api.annotations.v1.method_rule) = {
+      codes: [
+        INVALID_ARGUMENT,
+        NOT_FOUND
+      ],
+      need_authorization: true,
+    };
+  }
+
+  rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse) {
+    option (google.api.http) = {
+      put: "/twitter/api/v1/post",
+      body: "*"
+    };
+    option (api.annotations.v1.method_rule) = {
+      codes: [
+        INVALID_ARGUMENT,
+        NOT_FOUND
+      ],
+      need_authorization: true,
+    };
+  }
+
+  rpc SearchPostsUser(SearchPostsUserRequest) returns (SearchPostsUserResponse) {
+    option (google.api.http) = {get: "/twitter/api/v1/posts"};
+    option (api.annotations.v1.method_rule) = {
+      codes: [
+        INVALID_ARGUMENT,
+        UNAUTHENTICATED
+      ],
+      need_authorization: true,
+    };
+  }
+}
+message CreatePostRequest {
+  string text = 1 [(buf.validate.field).string = {  
+    min_len: 2,
+    max_len: 250,
+  }];
+}
+message CreatePostResponse {
+  string id = 1 [(buf.validate.field).string = {uuid: true}];
+}
+message DeleteRequest {
+  string file_id = 1 [(buf.validate.field).string = {uuid: true}];
+}
+message DeleteResponse {}
+
+message GetPostRequest {
+  string id = 1 [(buf.validate.field).string = {uuid: true}];
+}
+message Post {
+  string id = 1 [(buf.validate.field).string = {uuid: true}];
+  string text = 2 [(buf.validate.field).string = {
+    min_len: 2,
+    max_len: 400
+  }];
+}
+message GetPostResponse {
+  Post post = 1;
+}
+message UpdatePostRequest {
+  string id = 1 [(buf.validate.field).string = {uuid: true}];
+  string post = 2 [(buf.validate.field).string = {
+    min_len: 2,
+    max_len: 400
+  }];
+}
+message UpdatePostResponse {}
+
+message SearchPostsUserRequest {
+  string user_id = 1 [(buf.validate.field).string = {uuid: true}];
+  int32 limit = 2 [(buf.validate.field).int32 = {
+    gte: 1,
+    lte: 500
+  }];
+  int32 offset = 3 [(buf.validate.field).int32 = {gte: 0}];
+}
+message SearchPostsUserResponse {
+  repeated Post posts = 1;
+  int32 total = 2;
+}

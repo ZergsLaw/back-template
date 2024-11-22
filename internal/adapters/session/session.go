@@ -6,8 +6,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/ZergsLaw/back-template/cmd/session/client"
-	"github.com/ZergsLaw/back-template/internal/dom"
+	"github.com/Bar-Nik/back-template/cmd/session/client"
+	"github.com/Bar-Nik/back-template/internal/dom"
 )
 
 // For easy testing.

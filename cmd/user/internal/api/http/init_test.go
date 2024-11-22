@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	httpapi "github.com/ZergsLaw/back-template/cmd/user/internal/api/http"
-	"github.com/ZergsLaw/back-template/internal/dom"
-	"github.com/ZergsLaw/back-template/internal/testhelper"
+	httpapi "github.com/Bar-Nik/back-template/cmd/user/internal/api/http"
+	"github.com/Bar-Nik/back-template/internal/dom"
+	"github.com/Bar-Nik/back-template/internal/testhelper"
 )
 
 var (

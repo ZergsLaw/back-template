@@ -6,11 +6,9 @@ import "api/annotations/v1/annotations.proto";
 import "api/user_status/v1/user_status.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
-import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-import "google/rpc/code.proto";
 
-option go_package = "github.com/ZergsLaw/back-template/api/user/v1;pb";
+option go_package = "github.com/Bar-Nik/back-template/api/user/v1;pb";
 
 // External service API for managing user's information.
 service UserExternalAPI {

@@ -1,16 +1,19 @@
+//go:build integration
+
 package queue_test
 
 import (
 	"context"
 	"fmt"
+	"testing"
+	"time"
+
 	user_pb "github.com/ZergsLaw/back-template/api/user/v1"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
 	"github.com/ZergsLaw/back-template/internal/dom"
 	que "github.com/ZergsLaw/back-template/internal/queue"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestQueue_Smoke(t *testing.T) {

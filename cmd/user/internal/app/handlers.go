@@ -8,7 +8,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/ZergsLaw/back-template/internal/dom"
+	"github.com/Bar-Nik/back-template/internal/dom"
 )
 
 // VerificationEmail check exists or not user email.
