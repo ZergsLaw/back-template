@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"github.com/gofrs/uuid"
-
-	"github.com/ZergsLaw/back-template/internal/dom"
 )
 
 type (
@@ -16,21 +14,21 @@ type (
 		// Tx starts transaction in database.
 		// Errors: unknown.
 		Tx(ctx context.Context, f func(Repo) error) error
-		// Save adds to the new user to repository.
+		// UserSave adds to the new user to repository.
 		// Errors: ErrEmailExist, ErrUsernameExist, unknown.
-		Save(context.Context, User) (uuid.UUID, error)
-		// Update update user info.
+		UserSave(context.Context, User) (uuid.UUID, error)
+		// UserUpdate update user info.
 		// Errors: ErrUsernameExist, ErrEmailExist, unknown.
-		Update(context.Context, User) (*User, error)
-		// ByID returns user info by id.
+		UserUpdate(context.Context, User) (*User, error)
+		// UserByID returns user info by id.
 		// Errors: ErrNotFound, unknown.
-		ByID(context.Context, uuid.UUID) (*User, error)
-		// ByEmail returns user info by email.
+		UserByID(context.Context, uuid.UUID) (*User, error)
+		// UserByEmail returns user info by email.
 		// Errors: ErrNotFound, unknown.
-		ByEmail(context.Context, string) (*User, error)
-		// ByUsername returns user info by username.
+		UserByEmail(context.Context, string) (*User, error)
+		// UserByUsername returns user info by username.
 		// Errors: ErrNotFound, unknown.
-		ByUsername(context.Context, string) (*User, error)
+		UserByUsername(context.Context, string) (*User, error)
 		// SearchUsers returns list user info.
 		// Errors: unknown.
 		SearchUsers(context.Context, SearchParams) ([]User, int, error)
@@ -59,15 +57,21 @@ type (
 
 	// FileStore interface for saving and getting files.
 	FileStore interface {
+		// UploadAvatar save new file in database.
+		// Errors: unknown.
+		UploadAvatar(ctx context.Context, f Avatar) (uuid.UUID, error)
+		// DownloadAvatar get file by id.
+		// Errors: unknown.
+		DownloadAvatar(ctx context.Context, id uuid.UUID) (*Avatar, error)
+		// DeleteAvatar delete file by id.
+		// Errors: unknown.
+		DeleteAvatar(ctx context.Context, id uuid.UUID) error
 		// UploadFile save new file in database.
 		// Errors: unknown.
-		UploadFile(ctx context.Context, f Avatar) (uuid.UUID, error)
-		// DownloadFile get file by id.
+		UploadFile(ctx context.Context, f File) (uuid.UUID, error)
+		//DownloadFile get file by id.
 		// Errors: unknown.
-		DownloadFile(ctx context.Context, id uuid.UUID) (*Avatar, error)
-		// DeleteFile delete file by id.
-		// Errors: unknown.
-		DeleteFile(ctx context.Context, id uuid.UUID) error
+		DownloadFile(ctx context.Context, id uuid.UUID) (*File, error)
 	}
 
 	// PasswordHash module responsible for hashing password.
@@ -95,27 +99,30 @@ type (
 
 	// Sessions module for manager user's session.
 	Sessions interface {
-		// Get returns user session by his token.
-		// Errors: ErrNotFound, unknown.
-		Get(context.Context, string) (*dom.Session, error)
-		// Save new session for specific user.
+		// SessionSave saves the new user session in a database.
 		// Errors: unknown.
-		Save(context.Context, uuid.UUID, dom.Origin, dom.UserStatus) (*dom.Token, error)
-		// Delete removes session by id.
+		SessionSave(context.Context, Session) error
+		// SessionByID returns user session by session id.
 		// Errors: ErrNotFound, unknown.
-		Delete(context.Context, uuid.UUID) error
+		SessionByID(context.Context, uuid.UUID) (*Session, error)
+		// SessionDelete removes user session.
+		// Errors: ErrNotFound, unknown.
+		SessionDelete(context.Context, uuid.UUID) error
 	}
 
-	// Queue sends events to queue.
-	Queue interface {
-		// AddUser sends event 'EventAdd' to queue.
+	// Auth interface for generate access and refresh token by subject.
+	Auth interface {
+		// Token generate tokens by subject with expire time.
 		// Errors: unknown.
-		AddUser(context.Context, uuid.UUID, User) error
-		// DeleteUser sends event 'EventDel' to queue.
-		// Errors: unknown.
-		DeleteUser(context.Context, uuid.UUID, User) error
-		// UpdateUser sends event 'EventUpdate' to queue.
-		// Errors: unknown.
-		UpdateUser(context.Context, uuid.UUID, User) error
+		Token(uuid.UUID) (*Token, error)
+		// Subject unwrap Subject info from token.
+		// Errors: ErrInvalidToken, ErrExpiredToken, unknown.
+		Subject(token string) (uuid.UUID, error)
+	}
+
+	// ID generator for session.
+	ID interface {
+		// New generate new ID for session.
+		New() uuid.UUID
 	}
 )

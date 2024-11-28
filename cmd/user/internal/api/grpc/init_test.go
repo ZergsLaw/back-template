@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	dom "github.com/ZergsLaw/back-template/internal/dom"
 	"net"
 	"testing"
 	"time"
@@ -19,7 +20,7 @@ import (
 	pb "github.com/ZergsLaw/back-template/api/user/v1"
 	grpcapi "github.com/ZergsLaw/back-template/cmd/user/internal/api/grpc"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
+
 	"github.com/ZergsLaw/back-template/internal/metrics"
 	"github.com/ZergsLaw/back-template/internal/testhelper"
 )
@@ -31,21 +32,18 @@ var (
 	password = "password"
 	userID   = uuid.Must(uuid.NewV4())
 
-	token   = dom.Token{Value: "token"}
-	session = dom.Session{
+	token   = app.Token{Value: "token"}
+	session = app.Session{
 		ID:     uuid.Must(uuid.NewV4()),
 		UserID: uuid.Must(uuid.NewV4()),
-		Status: dom.UserStatusDefault,
 	}
-	adminSession = dom.Session{
+	adminSession = app.Session{
 		ID:     uuid.Must(uuid.NewV4()),
 		UserID: uuid.Must(uuid.NewV4()),
-		Status: dom.UserStatusAdmin,
 	}
-	jediSession = dom.Session{
+	jediSession = app.Session{
 		ID:     uuid.Must(uuid.NewV4()),
 		UserID: uuid.Must(uuid.NewV4()),
-		Status: dom.UserStatusJedi,
 	}
 	user = app.User{
 		ID:        uuid.Must(uuid.NewV4()),
@@ -58,7 +56,7 @@ var (
 		UpdatedAt: time.Now(),
 	}
 	errAny = errors.New("any err")
-	origin = dom.Origin{
+	origin = app.Origin{
 		IP:        net.ParseIP("127.0.0.1"),
 		UserAgent: "grpc-go/1.59.0",
 	}

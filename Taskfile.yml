@@ -19,26 +19,8 @@ tasks:
     cmds:
       - "./scripts/build.sh"
 
-  generate_certs:
-    dir: '{{.USER_WORKING_DIR}}'
-    vars:
-      COCKROACH_IMAGE: "cockroachdb/cockroach:v23.1.11"
-    preconditions:
-      - "test -f env.sh"
-    cmds:
-      - rm -rf ./certs
-      - | 
-        docker run --rm \
-         		 --volume $(pwd)/certs/cockroach:/app \
-         		 --volume $(pwd)/scripts/build_certs.sh:/init.sh \
-         		 --entrypoint=""\
-         		 --platform=linux/amd64 \
-         		 --workdir /app {{ .COCKROACH_IMAGE }} /init.sh
-
   init:
     dir: '{{.USER_WORKING_DIR}}'
-    deps:
-      - generate_certs
     preconditions:
       - "test -f ./scripts/build_env.sh"
       - "test -f env.sh"

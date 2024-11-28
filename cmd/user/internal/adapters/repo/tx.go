@@ -17,8 +17,8 @@ type txRepo struct {
 	tx *sqlx.Tx
 }
 
-// Save for implements app.Repo.
-func (t *txRepo) Save(ctx context.Context, u app.User) (id uuid.UUID, err error) {
+// UserSave for implements app.Repo.
+func (t *txRepo) UserSave(ctx context.Context, u app.User) (id uuid.UUID, err error) {
 	newUser := convert(u)
 	const query = `
 		insert into 
@@ -37,8 +37,8 @@ func (t *txRepo) Save(ctx context.Context, u app.User) (id uuid.UUID, err error)
 	return id, nil
 }
 
-// Update for implements app.Repo.
-func (t *txRepo) Update(ctx context.Context, u app.User) (upUser *app.User, err error) {
+// UserUpdate for implements app.Repo.
+func (t *txRepo) UserUpdate(ctx context.Context, u app.User) (upUser *app.User, err error) {
 	updateUser := convert(u)
 	const query = `
 		update users
@@ -65,8 +65,8 @@ func (t *txRepo) Update(ctx context.Context, u app.User) (upUser *app.User, err 
 	return upUser, nil
 }
 
-// Delete for implements app.Repo.
-func (t *txRepo) Delete(ctx context.Context, id uuid.UUID) error {
+// UserDelete for implements app.Repo.
+func (t *txRepo) UserDelete(ctx context.Context, id uuid.UUID) error {
 	const query = `delete from users where id = $1 returning *`
 
 	err := t.tx.GetContext(ctx, &user{}, query, id)
@@ -77,8 +77,8 @@ func (t *txRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-// ByID for implements app.Repo.
-func (t *txRepo) ByID(ctx context.Context, id uuid.UUID) (u *app.User, err error) {
+// UserByID for implements app.Repo.
+func (t *txRepo) UserByID(ctx context.Context, id uuid.UUID) (u *app.User, err error) {
 	const query = `select * from users where id = $1`
 
 	res := user{}
@@ -90,8 +90,8 @@ func (t *txRepo) ByID(ctx context.Context, id uuid.UUID) (u *app.User, err error
 	return res.convert(), nil
 }
 
-// ByEmail for implements app.Repo.
-func (t *txRepo) ByEmail(ctx context.Context, email string) (u *app.User, err error) {
+// UserByEmail for implements app.Repo.
+func (t *txRepo) UserByEmail(ctx context.Context, email string) (u *app.User, err error) {
 	const query = `select * from users where email = $1`
 
 	res := user{}
@@ -103,8 +103,8 @@ func (t *txRepo) ByEmail(ctx context.Context, email string) (u *app.User, err er
 	return res.convert(), nil
 }
 
-// ByUsername for implements app.Repo.
-func (t *txRepo) ByUsername(ctx context.Context, username string) (u *app.User, err error) {
+// UserByUsername for implements app.Repo.
+func (t *txRepo) UserByUsername(ctx context.Context, username string) (u *app.User, err error) {
 	const query = `select * from users where name = $1`
 
 	res := user{}

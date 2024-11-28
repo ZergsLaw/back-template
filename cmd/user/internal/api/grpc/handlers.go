@@ -12,7 +12,7 @@ import (
 
 	user_pb "github.com/ZergsLaw/back-template/api/user/v1"
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/adapters/session"
+	"github.com/ZergsLaw/back-template/cmd/user/internal/session"
 )
 
 const (
@@ -228,4 +228,20 @@ func (a *api) GetUsersByIDs(ctx context.Context, request *user_pb.GetUsersByIDsR
 	return &user_pb.GetUsersByIDsResponse{
 		Result: pbUsers,
 	}, nil
+}
+
+func (a *api) AddAvatar(ctx context.Context, request *user_pb.AddAvatarRequest) (*user_pb.AddAvatarResponse, error) {
+	userSession := session.FromContext(ctx)
+	if userSession == nil {
+		return nil, ErrUnauthenticated
+	}
+
+	fileID := uuid.FromStringOrNil(request.FileId)
+
+	err := a.app.AddAvatar(ctx, *userSession, fileID)
+	if err != nil {
+		return nil, fmt.Errorf("a.app.AddAvatar: %w", err)
+	}
+
+	return &user_pb.AddAvatarResponse{}, nil
 }

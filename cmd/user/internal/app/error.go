@@ -6,6 +6,8 @@ import (
 
 // Errors.
 var (
+	ErrInvalidToken         = errors.New("invalid token")
+	ErrDuplicate            = errors.New("duplicate")
 	ErrEmailExist           = errors.New("email exist")
 	ErrUsernameExist        = errors.New("username exist")
 	ErrNotFound             = errors.New("not found")

@@ -10,12 +10,11 @@ import (
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
 )
 
-// UploadFile implements app.FileStore.
-func (c *Client) UploadFile(ctx context.Context, f app.Avatar) (uuid.UUID, error) {
+// UploadAvatar implements app.FileStore.
+func (c *Client) UploadAvatar(ctx context.Context, f app.Avatar) (uuid.UUID, error) {
 	id := uuid.Must(uuid.NewV4())
-
 	const partSize = 1024 * 1024 / 2
-	_, err := c.store.PutObject(ctx, bucketName, id.String(), f, f.Size, minio.PutObjectOptions{
+	_, err := c.store.PutObject(ctx, bucketAvatars, id.String(), f, f.Size, minio.PutObjectOptions{
 		UserMetadata: map[string]string{
 			headerSrcName: f.Name,
 		},
@@ -29,9 +28,9 @@ func (c *Client) UploadFile(ctx context.Context, f app.Avatar) (uuid.UUID, error
 	return id, nil
 }
 
-// DownloadFile implements app.FileStore.
-func (c *Client) DownloadFile(ctx context.Context, id uuid.UUID) (*app.Avatar, error) {
-	file, err := c.store.GetObject(ctx, bucketName, id.String(), minio.GetObjectOptions{})
+// DownloadAvatar implements app.FileStore.
+func (c *Client) DownloadAvatar(ctx context.Context, id uuid.UUID) (*app.Avatar, error) {
+	file, err := c.store.GetObject(ctx, bucketAvatars, id.String(), minio.GetObjectOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("c.store.GetObject: %w", err)
 	}
@@ -57,9 +56,9 @@ func (c *Client) DownloadFile(ctx context.Context, id uuid.UUID) (*app.Avatar, e
 	return f, nil
 }
 
-// DeleteFile implements app.FileStore.
-func (c *Client) DeleteFile(ctx context.Context, id uuid.UUID) error {
-	err := c.store.RemoveObject(ctx, bucketName, id.String(), minio.RemoveObjectOptions{})
+// DeleteAvatar implements app.FileStore.
+func (c *Client) DeleteAvatar(ctx context.Context, id uuid.UUID) error {
+	err := c.store.RemoveObject(ctx, bucketAvatars, id.String(), minio.RemoveObjectOptions{})
 	if err != nil {
 		return fmt.Errorf("c.store.RemoveObject: %w", err)
 	}
@@ -67,7 +66,51 @@ func (c *Client) DeleteFile(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-// Close implements io.Closer.
-func (*Client) Close() error {
-	return nil
+// UploadFile implements app.FileStore.
+func (c *Client) UploadFile(ctx context.Context, f app.File) (uuid.UUID, error) {
+	id := uuid.Must(uuid.NewV4())
+
+	const partSize = 1024 * 1024 / 2
+	_, err := c.store.PutObject(ctx, bucketFile, id.String(), f, f.Size, minio.PutObjectOptions{
+		UserMetadata: map[string]string{
+			headerSrcName: f.Name,
+			headerUserID:  f.UserID.String(),
+		},
+		ContentType: f.ContentType,
+		PartSize:    partSize,
+	})
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("c.store.PutObject: %w", err)
+	}
+
+	return id, nil
+}
+
+// DownloadFile implements app.FileStore.
+func (c *Client) DownloadFile(ctx context.Context, id uuid.UUID) (*app.File, error) {
+	file, err := c.store.GetObject(ctx, bucketFile, id.String(), minio.GetObjectOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("c.store.GetObject: %w", err)
+	}
+
+	stat, err := file.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("file.stat: %w", err)
+	}
+
+	if stat.IsDeleteMarker {
+		return nil, app.ErrNotFound
+	}
+
+	f := &app.File{
+		ReadSeekCloser: file,
+		ID:             id,
+		UserID:         uuid.FromStringOrNil(stat.Metadata.Get(headerUserID)),
+		Name:           stat.Metadata.Get(headerSrcName),
+		Size:           stat.Size,
+		ModTime:        stat.LastModified,
+		ContentType:    stat.ContentType,
+	}
+
+	return f, nil
 }

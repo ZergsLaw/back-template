@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/ZergsLaw/back-template/cmd/user/internal/session"
 	"io"
 	"log/slog"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/adapters/session"
+
 	"github.com/ZergsLaw/back-template/internal/logger"
 )
 
@@ -117,6 +118,78 @@ func (a *api) downloadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	case errors.Is(err, app.ErrNotFound):
 		errorHandler(w, r, http.StatusNotFound, err)
+
+		return
+	default:
+		errorHandler(w, r, http.StatusInternalServerError, err)
+
+		return
+	}
+}
+
+func (a *api) uploadFile(w http.ResponseWriter, r *http.Request) {
+	userSession := session.FromContext(r.Context())
+	if userSession == nil {
+		errorHandler(w, r, http.StatusUnauthorized, ErrUserUnauthorized)
+
+		return
+	}
+
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		errorHandler(w, r, http.StatusBadRequest, err)
+
+		return
+	}
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			logger.FromContext(r.Context()).Error("couldn't not close file", slog.String(logger.Error.String(), err.Error()))
+		}
+	}()
+
+	//TODO max file size?
+	if handler.Size >= maxAvatarSize {
+		errorHandler(w, r, http.StatusBadRequest, ErrMaxAvatarSize)
+
+		return
+	}
+
+	//TODO what is this ntk
+	var buf [512]byte
+	_, err = file.Read(buf[:])
+	if err != nil {
+		errorHandler(w, r, http.StatusBadRequest, fmt.Errorf("file.Read: %w", err))
+
+		return
+	}
+	_, err = file.Seek(0, io.SeekStart)
+	if err != nil {
+		errorHandler(w, r, http.StatusBadRequest, fmt.Errorf("file.Seek: %w", err))
+
+		return
+	}
+	contentType := http.DetectContentType(buf[:])
+
+	f := app.File{
+		Name:           handler.Filename,
+		UserID:         userSession.UserID,
+		ContentType:    contentType,
+		Size:           handler.Size,
+		ReadSeekCloser: file,
+	}
+
+	id, err := a.app.SaveFile(r.Context(), *userSession, f)
+	switch {
+	case err == nil:
+		resp := &UploadFilesResponse{
+			FileID: id,
+		}
+		responseHandler(w, r, http.StatusCreated, resp)
+
+		return
+	case errors.Is(err, app.ErrInvalidImageFormat):
+		errorHandler(w, r, http.StatusBadRequest, err)
 
 		return
 	default:

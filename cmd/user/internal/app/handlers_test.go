@@ -2,6 +2,7 @@ package app_test
 
 import (
 	"context"
+	dom "github.com/ZergsLaw/back-template/internal/dom"
 	"testing"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
 )
 
 func TestApp_VerificationEmail(t *testing.T) {
@@ -31,7 +31,7 @@ func TestApp_VerificationEmail(t *testing.T) {
 			t.Parallel()
 
 			ctx, module, mocks, assert := start(t)
-			mocks.repo.EXPECT().ByEmail(ctx, "email@email.com").Return(nil, tc.repoError)
+			mocks.repo.EXPECT().UserByEmail(ctx, "email@email.com").Return(nil, tc.repoError)
 
 			err := module.VerificationEmail(ctx, "email@email.com")
 			assert.ErrorIs(err, tc.want)
@@ -57,7 +57,7 @@ func TestApp_VerificationUsername(t *testing.T) {
 			t.Parallel()
 
 			ctx, module, mocks, assert := start(t)
-			mocks.repo.EXPECT().ByUsername(ctx, "name").Return(nil, tc.repoError)
+			mocks.repo.EXPECT().UserByUsername(ctx, "name").Return(nil, tc.repoError)
 
 			err := module.VerificationUsername(ctx, "name")
 			assert.ErrorIs(err, tc.want)
@@ -105,7 +105,7 @@ func TestApp_CreateUser(t *testing.T) {
 	}{
 		"success":         {passHash, nil, wantID, nil, user, nil, wantID, nil, wantID, nil},
 		"m.hash.Hashing":  {nil, errAny, wantID, nil, nil, nil, uuid.Nil, nil, uuid.Nil, errAny},
-		"m.user.Save":     {passHash, nil, uuid.Nil, app.ErrUsernameExist, nil, nil, uuid.Nil, nil, uuid.Nil, app.ErrUsernameExist},
+		"m.user.UserSave": {passHash, nil, uuid.Nil, app.ErrUsernameExist, nil, nil, uuid.Nil, nil, uuid.Nil, app.ErrUsernameExist},
 		"m.user.SaveTask": {passHash, nil, wantID, nil, user, nil, uuid.Nil, errAny, uuid.Nil, errAny},
 		"m.user.ByID":     {passHash, nil, wantID, nil, nil, errAny, uuid.Nil, nil, uuid.Nil, errAny},
 	}
@@ -123,7 +123,7 @@ func TestApp_CreateUser(t *testing.T) {
 					return fn(mocks.repo)
 				})
 
-				mocks.repo.EXPECT().Save(ctx, app.User{
+				mocks.repo.EXPECT().UserSave(ctx, app.User{
 					Email:    email,
 					Name:     username,
 					FullName: fullname,
@@ -132,14 +132,14 @@ func TestApp_CreateUser(t *testing.T) {
 				}).Return(tc.repoSaveRes, tc.repoSaveErr)
 
 				if tc.repoSaveErr == nil {
-					mocks.repo.EXPECT().ByID(ctx, tc.repoSaveRes).
+					mocks.repo.EXPECT().UserByID(ctx, tc.repoSaveRes).
 						Return(tc.repoGetRes, tc.repGetErr)
 				}
 
 				if tc.repoSaveErr == nil && tc.repGetErr == nil {
 					mocks.repo.EXPECT().SaveTask(ctx, app.Task{
 						User: *tc.repoGetRes,
-						Kind: app.TaskKindEventAdd,
+						Kind: app.TaskKindEventUserAdd,
 					}).Return(tc.repoSaveTaskRes, tc.repoSaveTaskErr)
 				}
 			}
@@ -167,7 +167,10 @@ func TestApp_Login(t *testing.T) {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		token = &dom.Token{
+
+		sessionID = uuid.Must(uuid.NewV4())
+
+		token = &app.Token{
 			Value: "token",
 		}
 	)
@@ -175,11 +178,11 @@ func TestApp_Login(t *testing.T) {
 	testCases := map[string]struct {
 		repoRes          *app.User
 		repoErr          error
-		authRes          *dom.Token
+		authRes          *app.Token
 		authErr          error
 		hasherCompareRes bool
 		wantUserID       uuid.UUID
-		wantToke         *dom.Token
+		wantToke         *app.Token
 		wantErr          error
 	}{
 		"success":        {user, nil, token, nil, true, user.ID, token, nil},
@@ -194,13 +197,22 @@ func TestApp_Login(t *testing.T) {
 
 			ctx, module, mocks, assert := start(t)
 
-			mocks.repo.EXPECT().ByEmail(ctx, email).Return(tc.repoRes, tc.repoErr)
+			mocks.repo.EXPECT().UserByEmail(ctx, email).Return(tc.repoRes, tc.repoErr)
 			if tc.repoErr == nil {
 				mocks.hasher.EXPECT().Compare(tc.repoRes.PassHash, []byte(pass)).Return(tc.hasherCompareRes)
 			}
 
 			if tc.hasherCompareRes {
-				mocks.sessions.EXPECT().Save(ctx, user.ID, origin, dom.UserStatusDefault).Return(tc.authRes, tc.authErr)
+				mocks.id.EXPECT().New().Return(sessionID)
+				mocks.auth.EXPECT().Token(sessionID).Return(token, tc.authErr)
+				mocks.sessions.EXPECT().SessionSave(ctx, app.Session{
+					ID:        sessionID,
+					Origin:    origin,
+					Token:     *token,
+					UserID:    user.ID,
+					CreatedAt: time.Time{},
+					UpdatedAt: time.Time{},
+				}).Return(tc.authErr)
 			}
 
 			userID, token, err := module.Login(ctx, email, pass, origin)
@@ -227,18 +239,18 @@ func TestApp_UserByID(t *testing.T) {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		session = &dom.Session{
+		session = &app.Session{
 			ID:     uuid.Must(uuid.NewV4()),
 			UserID: user.ID,
 		}
-		session2 = &dom.Session{
+		session2 = &app.Session{
 			ID:     uuid.Must(uuid.NewV4()),
 			UserID: uuid.Must(uuid.NewV4()),
 		}
 	)
 
 	testCases := map[string]struct {
-		session      *dom.Session
+		session      *app.Session
 		userIDArg    uuid.UUID
 		userIDSearch uuid.UUID
 		repoRes      *app.User
@@ -257,7 +269,7 @@ func TestApp_UserByID(t *testing.T) {
 
 			ctx, module, mocks, assert := start(t)
 
-			mocks.repo.EXPECT().ByID(ctx, tc.userIDSearch).Return(tc.repoRes, tc.repoErr)
+			mocks.repo.EXPECT().UserByID(ctx, tc.userIDSearch).Return(tc.repoRes, tc.repoErr)
 
 			res, err := module.UserByID(ctx, *tc.session, tc.userIDArg)
 			assert.Equal(tc.want, res)
@@ -279,7 +291,7 @@ func TestApp_UpdatePassword(t *testing.T) {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		session = dom.Session{
+		session = app.Session{
 			ID:     uuid.Must(uuid.NewV4()),
 			UserID: user.ID,
 		}
@@ -312,7 +324,7 @@ func TestApp_UpdatePassword(t *testing.T) {
 
 			ctx, module, mocks, assert := start(t)
 
-			mocks.repo.EXPECT().ByID(ctx, session.UserID).Return(tc.repoByIDRes, tc.repoByIDErr)
+			mocks.repo.EXPECT().UserByID(ctx, session.UserID).Return(tc.repoByIDRes, tc.repoByIDErr)
 
 			if tc.repoByIDErr == nil {
 				mocks.hasher.EXPECT().Compare(gomock.Any(), []byte(tc.oldPass)).Return(tc.hashCompareResFirst)
@@ -328,7 +340,7 @@ func TestApp_UpdatePassword(t *testing.T) {
 
 			if tc.hashHashingErr == nil && tc.hashHashingRes != nil {
 				tc.repoByIDRes.PassHash = tc.hashHashingRes
-				mocks.repo.EXPECT().Update(ctx, *tc.repoByIDRes).Return(tc.updateRes, tc.updateErr)
+				mocks.repo.EXPECT().UserUpdate(ctx, *tc.repoByIDRes).Return(tc.updateRes, tc.updateErr)
 			}
 
 			err := module.UpdatePassword(ctx, session, tc.oldPass, tc.newPass)
@@ -351,11 +363,11 @@ func TestApp_UpdateUser(t *testing.T) {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		session = dom.Session{
+		session = app.Session{
 			ID:     uuid.Must(uuid.NewV4()),
 			UserID: user.ID,
 		}
-		sessionAnotherUser = dom.Session{
+		sessionAnotherUser = app.Session{
 			ID:     uuid.Must(uuid.NewV4()),
 			UserID: uuid.Must(uuid.NewV4()),
 		}
@@ -364,7 +376,7 @@ func TestApp_UpdateUser(t *testing.T) {
 	)
 
 	testCases := map[string]struct {
-		session             dom.Session
+		session             app.Session
 		newUserName         string
 		newAvatarID         uuid.UUID
 		repoByIDRes         *app.User
@@ -390,7 +402,7 @@ func TestApp_UpdateUser(t *testing.T) {
 
 			ctx, module, mocks, assert := start(t)
 
-			mocks.repo.EXPECT().ByID(ctx, tc.session.UserID).Return(tc.repoByIDRes, tc.repoByIDErr)
+			mocks.repo.EXPECT().UserByID(ctx, tc.session.UserID).Return(tc.repoByIDRes, tc.repoByIDErr)
 
 			if tc.newAvatarID == uuid.Nil {
 				tc.newAvatarID = tc.repoByIDRes.AvatarID
@@ -412,7 +424,7 @@ func TestApp_UpdateUser(t *testing.T) {
 					CreatedAt: time.Time{},
 					UpdatedAt: time.Time{},
 				}
-				mocks.repo.EXPECT().Update(ctx, updateUser).Return(tc.repoUpdateRes, tc.repoUpdateErr)
+				mocks.repo.EXPECT().UserUpdate(ctx, updateUser).Return(tc.repoUpdateRes, tc.repoUpdateErr)
 			}
 
 			err := module.UpdateUser(ctx, tc.session, tc.newUserName, tc.newAvatarID)

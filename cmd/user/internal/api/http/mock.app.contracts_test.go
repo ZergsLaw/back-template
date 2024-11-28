@@ -13,7 +13,6 @@ import (
 	reflect "reflect"
 
 	app "github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	dom "github.com/ZergsLaw/back-template/internal/dom"
 	uuid "github.com/gofrs/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -42,10 +41,10 @@ func (m *Mockapplication) EXPECT() *MockapplicationMockRecorder {
 }
 
 // Auth mocks base method.
-func (m *Mockapplication) Auth(ctx context.Context, token string) (*dom.Session, error) {
+func (m *Mockapplication) Auth(ctx context.Context, token string) (*app.Session, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Auth", ctx, token)
-	ret0, _ := ret[0].(*dom.Session)
+	ret0, _ := ret[0].(*app.Session)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -57,7 +56,7 @@ func (mr *MockapplicationMockRecorder) Auth(ctx, token any) *gomock.Call {
 }
 
 // GetFile mocks base method.
-func (m *Mockapplication) GetFile(ctx context.Context, session dom.Session, fileID uuid.UUID) (*app.Avatar, error) {
+func (m *Mockapplication) GetFile(ctx context.Context, session app.Session, fileID uuid.UUID) (*app.Avatar, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetFile", ctx, session, fileID)
 	ret0, _ := ret[0].(*app.Avatar)
@@ -72,7 +71,7 @@ func (mr *MockapplicationMockRecorder) GetFile(ctx, session, fileID any) *gomock
 }
 
 // SaveAvatar mocks base method.
-func (m *Mockapplication) SaveAvatar(ctx context.Context, session dom.Session, file app.Avatar) (uuid.UUID, error) {
+func (m *Mockapplication) SaveAvatar(ctx context.Context, session app.Session, file app.Avatar) (uuid.UUID, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveAvatar", ctx, session, file)
 	ret0, _ := ret[0].(uuid.UUID)

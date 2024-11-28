@@ -8,14 +8,14 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[TaskKindEventAdd-1]
-	_ = x[TaskKindEventDel-2]
-	_ = x[TaskKindEventUpdate-3]
+	_ = x[TaskKindEventUserAdd-1]
+	_ = x[TaskKindEventUserDel-2]
+	_ = x[TaskKindEventUserUpdate-3]
 }
 
-const _TaskKind_name = "EventAddEventDelEventUpdate"
+const _TaskKind_name = "EventUserAddEventUserDelEventUserUpdate"
 
-var _TaskKind_index = [...]uint8{0, 8, 16, 27}
+var _TaskKind_index = [...]uint8{0, 12, 24, 39}
 
 func (i TaskKind) String() string {
 	i -= 1

@@ -20,7 +20,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	session_pb "github.com/ZergsLaw/back-template/api/session/v1"
 	pb "github.com/ZergsLaw/back-template/api/user/v1"
 	"github.com/ZergsLaw/back-template/internal/grpchelper"
 	"github.com/ZergsLaw/back-template/internal/logger"

@@ -1,6 +1,7 @@
 package http_test
 
 import (
+	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
 	"net/http"
 	"testing"
 
@@ -9,13 +10,13 @@ import (
 	"go.uber.org/mock/gomock"
 
 	httpapi "github.com/ZergsLaw/back-template/cmd/user/internal/api/http"
-	"github.com/ZergsLaw/back-template/internal/dom"
+
 	"github.com/ZergsLaw/back-template/internal/testhelper"
 )
 
 var (
-	token   = dom.Token{Value: "token"}
-	session = dom.Session{
+	token   = app.Token{Value: "token"}
+	session = app.Session{
 		ID:     uuid.Must(uuid.NewV4()),
 		UserID: uuid.Must(uuid.NewV4()),
 	}

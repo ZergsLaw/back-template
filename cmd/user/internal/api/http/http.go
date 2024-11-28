@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-	"github.com/ZergsLaw/back-template/internal/dom"
 	"github.com/ZergsLaw/back-template/internal/logger"
 )
 
@@ -23,9 +22,10 @@ var (
 )
 
 type application interface {
-	SaveAvatar(ctx context.Context, session dom.Session, file app.Avatar) (uuid.UUID, error)
-	GetFile(ctx context.Context, session dom.Session, fileID uuid.UUID) (*app.Avatar, error)
-	Auth(ctx context.Context, token string) (*dom.Session, error)
+	SaveAvatar(ctx context.Context, session app.Session, file app.Avatar) (uuid.UUID, error)
+	SaveFile(ctx context.Context, session app.Session, file app.File) (fileID uuid.UUID, err error)
+	GetFile(ctx context.Context, session app.Session, fileID uuid.UUID) (*app.Avatar, error)
+	Auth(ctx context.Context, token string) (*app.Session, error)
 }
 
 type api struct {
@@ -50,6 +50,7 @@ func New(ctx context.Context, applications application) http.Handler {
 
 	router.HandleFunc("/user/api/v1/file/avatar", api.uploadAvatar).Methods(http.MethodPost)
 	router.HandleFunc("/user/api/v1/file/avatar/{id}", api.downloadAvatar).Methods(http.MethodGet)
+	router.HandleFunc("/user/api/v1/file/file", api.uploadFile).Methods(http.MethodPost)
 
 	return router
 }
