@@ -12,12 +12,42 @@ tasks:
     cmds:
       - "gotestsum --format pkgname -- -coverprofile=.cover/cover.out -tags=integration -race -count=1 ./..."
 
-  build:
+  build-internal:
+    internal: true
     dir: '{{.USER_WORKING_DIR}}'
-    preconditions:
-      - "test -f ./scripts/build.sh"
     cmds:
-      - "./scripts/build.sh"
+      - "CGO_ENABLED={{.CGO_ENABLED}} GOOS={{.GOOS}} GOARCH={{.GOARCH}} go build -o bin/ ./cmd/back/"
+
+  build:
+    vars:
+      CGO_ENABLED:
+        sh: go env CGO_ENABLED
+      GOOS:
+        sh: go env GOOS
+      GOARCH:
+        sh: go env GOARCH
+    cmds:
+      - task: build-internal
+        vars:
+          CGO_ENABLED: "{{.CGO_ENABLED}}"
+          GOOS: "{{.GOOS}}"
+          GOARCH: "{{.GOARCH}}"
+
+  build-linux:
+    cmds:
+      - task: build-internal
+        vars:
+          CGO_ENABLED: 0
+          GOOS: linux
+          GOARCH: amd64
+
+  build-windows:
+    cmds:
+      - task: build-internal
+        vars:
+          CGO_ENABLED: 0
+          GOOS: windows
+          GOARCH: amd64
 
   init:
     dir: '{{.USER_WORKING_DIR}}'
@@ -36,13 +66,13 @@ tasks:
     cmds:
       - "go get -v ./..."
       - "golangci-lint run ./..."
-      - "buf lint"
+      - "easyp lint"
 
   up:
     dir: '{{.USER_WORKING_DIR}}'
     deps:
       - "init"
-      - "build"
+      - "build-linux"
     dotenv:
       - ".env"
     preconditions:

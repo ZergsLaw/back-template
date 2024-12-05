@@ -3,8 +3,9 @@ package testhelper
 import (
 	"context"
 	"fmt"
-	"github.com/sipki-tech/database"
 	"testing"
+
+	"github.com/sipki-tech/database"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/stretchr/testify/require"
@@ -13,7 +14,7 @@ import (
 // Default values for making postgres test container.
 const (
 	PostgresDBImage           = `postgres`
-	PostgresDBVersion         = `14.5-alpine3.16`
+	PostgresDBVersion         = `16.1`
 	PostgresDBDefaultEndpoint = ``
 )
 

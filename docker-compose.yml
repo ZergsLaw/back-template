@@ -1,14 +1,14 @@
 version: "3.9"
 
 volumes:
-  minio_node1:
+  minio:
   postgres:
 
 services:
 
-  minio-node1:
+  minio:
     image: "docker.io/bitnami/minio:2023"
-    container_name: "back_template_minio_node1"
+    container_name: "back_template_minio"
     restart: "always"
     shm_size: "512m"
     labels:
@@ -17,14 +17,46 @@ services:
       MINIO_ROOT_USER: "test_svc"
       MINIO_ROOT_PASSWORD: "test_pass"
     ports:
-      - "${BACK_TEMPLATE_MINIO_NODE1_ADDR_HTTP_PORT:-0}:9000"
-      - "${BACK_TEMPLATE_MINIO_NODE1_ADDR_ADMIN_PORT:-0}:9001"
+      - "${BACK_TEMPLATE_MINIO_ADDR_HTTP_PORT:-0}:9000"
+      - "${BACK_TEMPLATE_MINIO_ADDR_ADMIN_PORT:-0}:9001"
     volumes:
-      - "minio_node1:/data/"
+      - "minio:/data/"
 
+  postgres:
+    image: postgres:16.1
+    container_name: "back_template_postgres"
+    restart: unless-stopped
+    volumes:
+      - "postgres:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_DB: "user_db"
+      POSTGRES_USER: "user_svc"
+      POSTGRES_PASSWORD: "user_pass"
+    ports:
+      - "${BACK_TEMPLATE_POSTGRES_ADDR_PORT:-0}:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./cmd/back/docker/Dockerfile
+    container_name: "back_template_backend"
+    restart: always
+    labels:
+      service: "backend"
+    command: [
+      "-cfg=/config.yml",
+      "-log_level=debug",
+    ]
+    volumes:
+      - "${BACK_SVC_CONFIG}:/config.yml"
+    ports:
+      - "${BACK_SVC_GRPC_PORT}:8080" # gRPC
+      - "${BACK_SVC_METRIC_PORT}:8081" # metric
+      - "${BACK_SVC_GRPC_GW_PORT}:8082" # gRPC-Gateway
+      - "${BACK_SVC_GRPC_FILES_PORT}:8083" # file srv
 
   promtail:
-    image: "grafana/promtail:2.9.2"
+    image: "grafana/promtail:3.3.1"
     container_name: "back_template_promtail"
     restart: "always"
     volumes:
@@ -37,14 +69,15 @@ services:
     ]
 
   loki:
-    image: "grafana/loki:2.9.2"
+    image: "grafana/loki:3.3.1"
     ports:
       - "3100:3100"
-  #    volumes:
-  #      - "./configs/promtail/promtail.yml:/etc/promtail/docker-config.yml"
-  #    command: [
-  #      "-config.file=/etc/loki/local-config.yml"
-  #    ]
+    volumes:
+      - "./configs/promtail/promtail.yml:/etc/promtail/docker-config.yml"
+    command: [
+      "-config.file=/etc/loki/local-config.yml"
+    ]
+
   grafana:
     image: "grafana/grafana:10.2.1"
     ports:
@@ -60,37 +93,4 @@ services:
       - "GF_AUTH_DISABLE_LOGIN_FORM=true"
 
 
-  postgres:
-    image: postgres:16.1
-    container_name: "back_template_postgres"
-    restart: unless-stopped
-
-#    volumes:
-##      - "./cmd/user/config.yml:/config.yml"
-    environment:
-      POSTGRES_DB: "user_db"
-      POSTGRES_USER: "user_svc"
-      POSTGRES_PASSWORD: "user_pass"
-    ports:
-      - "5432:5432"
-
-  user-svc:
-    build:
-      context: .
-      dockerfile: ./cmd/user/docker/Dockerfile
-    container_name: "back_template_user_svc"
-    restart: always
-    labels:
-      service: "user"
-    command: [
-      "-cfg=/config.yml",
-      "-log_level=debug",
-    ]
-    volumes:
-      - "${USER_SVC_CONFIG}:/config.yml"
-    ports:
-      - "${USER_SVC_GRPC_PORT}:8080" # gRPC
-      - "${USER_SVC_METRIC_PORT}:8081" # metric
-      - "${USER_SVC_GRPC_GW_PORT}:8082" # gRPC-Gateway
-      - "${USER_SVC_GRPC_FILES_PORT}:8083" # file srv
 
