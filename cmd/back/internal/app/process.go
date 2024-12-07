@@ -12,12 +12,14 @@ import (
 )
 
 func (a *App) Process(ctx context.Context) error {
+	//nolint:godox
 	// TODO: Add support for master-slaves nodes.
+	//nolint:godox
 	// TODO: Add tests.
 	var (
 		log   = logger.FromContext(ctx)
 		wg    = &sync.WaitGroup{}
-		tasks = make(chan *app.Event[Task])
+		tasks = make(chan *dom.Event[Task])
 	)
 	defer wg.Wait()
 
@@ -76,7 +78,6 @@ func (a *App) handleTaskKindEventDel(ctx context.Context, task Task) error {
 }
 
 func (a *App) handleTaskKindEventUpdate(ctx context.Context, task Task) error {
-
 	err := a.repo.FinishTask(ctx, task.ID)
 	if err != nil {
 		return fmt.Errorf("a.subscribe.FinishTask: %w", err)
@@ -85,7 +86,7 @@ func (a *App) handleTaskKindEventUpdate(ctx context.Context, task Task) error {
 	return nil
 }
 
-func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan *app.Event[Task]) {
+func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan *dom.Event[Task]) {
 	defer wg.Done()
 
 	const (
@@ -110,7 +111,7 @@ func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan 
 				continue
 			}
 
-			handle := func(event *app.Event[Task], ackCh chan app.AcknowledgeKind) {
+			handle := func(event *dom.Event[Task], ackCh chan dom.AcknowledgeKind) {
 				select {
 				case <-ctx.Done():
 					return
@@ -122,7 +123,7 @@ func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan 
 					case <-ctx.Done():
 						return
 					case ack := <-ackCh:
-						if ack == app.AcknowledgeKindAck {
+						if ack == dom.AcknowledgeKindAck {
 							return
 						}
 
@@ -135,9 +136,9 @@ func (a *App) collectingTasks(ctx context.Context, wg *sync.WaitGroup, out chan 
 				}
 			}
 
-			ackCh := make(chan app.AcknowledgeKind)
+			ackCh := make(chan dom.AcknowledgeKind)
 			for i := range tasks {
-				event := app.NewEvent(tasks[i].ID, ackCh, tasks[i])
+				event := dom.NewEvent(tasks[i].ID, ackCh, tasks[i])
 
 				handle(event, ackCh)
 			}

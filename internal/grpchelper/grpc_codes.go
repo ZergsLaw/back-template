@@ -1,4 +1,3 @@
-//nolint:wrapcheck
 package grpchelper
 
 import (
@@ -17,7 +16,7 @@ func UnaryConvertCodesServerInterceptor(converter GRPCCodesConverterHandler) grp
 	return func(
 		ctx context.Context,
 		req interface{},
-		info *grpc.UnaryServerInfo,
+		_ *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
 		resp, err := handler(ctx, req)
@@ -34,7 +33,7 @@ func StreamConvertCodesServerInterceptor(converter GRPCCodesConverterHandler) gr
 	return func(
 		srv interface{},
 		stream grpc.ServerStream,
-		info *grpc.StreamServerInfo,
+		_ *grpc.StreamServerInfo,
 		handler grpc.StreamHandler,
 	) error {
 		err := handler(srv, stream)

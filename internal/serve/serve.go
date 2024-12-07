@@ -16,7 +16,7 @@ func Start(ctx context.Context, services ...func(context.Context) error) error {
 	g, groupCtx := errgroup.WithContext(ctx)
 
 	for i := range services {
-		i := i
+		i := i //nolint:copyloopvar
 
 		g.Go(func() error { return services[i](groupCtx) })
 	}

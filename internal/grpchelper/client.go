@@ -14,7 +14,7 @@ import (
 )
 
 // Dial creates a gRPC client connection to the given target.
-func Dial(ctx context.Context,
+func Dial(_ context.Context,
 	addr string,
 	log *slog.Logger,
 	metrics *grpc_prometheus.ClientMetrics,
@@ -22,7 +22,6 @@ func Dial(ctx context.Context,
 	extraStream []grpc.StreamClientInterceptor,
 	extraDialOption []grpc.DialOption,
 ) (*grpc.ClientConn, error) {
-
 	loggingOpts := []logging.Option{
 		logging.WithLogOnEvents(
 			logging.StartCall,
@@ -62,5 +61,5 @@ func Dial(ctx context.Context,
 		),
 	)
 
-	return grpc.DialContext(ctx, addr, dialOptions...)
+	return grpc.NewClient(addr, dialOptions...)
 }

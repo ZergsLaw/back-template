@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
-
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
+
+	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
 )
 
 // SessionSave for implements app.Repo.

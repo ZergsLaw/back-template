@@ -8,8 +8,6 @@ import (
 	"testing"
 	"time"
 
-	dom "github.com/ZergsLaw/back-template/internal/dom"
-
 	"github.com/gofrs/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/require"
@@ -19,9 +17,9 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	pb "github.com/ZergsLaw/back-template/api/user/v1"
-	grpcapi "github.com/ZergsLaw/back-template/cmd/user/internal/api/grpc"
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
-
+	grpcapi "github.com/ZergsLaw/back-template/cmd/back/internal/api/grpc"
+	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
+	dom "github.com/ZergsLaw/back-template/internal/dom"
 	"github.com/ZergsLaw/back-template/internal/metrics"
 	"github.com/ZergsLaw/back-template/internal/testhelper"
 )
@@ -60,7 +58,7 @@ var (
 	errAny = errors.New("any err")
 	origin = app.Origin{
 		IP:        net.ParseIP("127.0.0.1"),
-		UserAgent: "grpc-go/1.67.1",
+		UserAgent: "grpc-go/1.68.1",
 	}
 )
 
@@ -91,7 +89,7 @@ func start(t *testing.T, userStatus dom.UserStatus) (context.Context, *clients, 
 		assert.NoError(err)
 	}()
 
-	switch userStatus {
+	switch userStatus { //nolint:exhaustive
 	case dom.UserStatusAdmin:
 		mockApp.EXPECT().Auth(gomock.Any(), token.Value).Return(&adminSession, nil).AnyTimes()
 	case dom.UserStatusJedi:
@@ -100,9 +98,8 @@ func start(t *testing.T, userStatus dom.UserStatus) (context.Context, *clients, 
 		mockApp.EXPECT().Auth(gomock.Any(), token.Value).Return(&session, nil).AnyTimes()
 	}
 
-	conn, err := grpc.DialContext(ctx, addr.String(),
-		grpc.WithTransportCredentials(insecure.NewCredentials()), // TODO Add TLS and remove this.
-		grpc.WithBlock(),
+	conn, err := grpc.NewClient(addr.String(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	assert.NoError(err)
 

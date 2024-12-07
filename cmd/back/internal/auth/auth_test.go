@@ -1,11 +1,12 @@
 package auth_test
 
 import (
-	"github.com/ZergsLaw/back-template/cmd/user/internal/auth"
 	"testing"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ZergsLaw/back-template/cmd/back/internal/auth"
 )
 
 func TestAuth_TokenAndSubject(t *testing.T) {

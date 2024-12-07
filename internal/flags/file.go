@@ -8,8 +8,10 @@ import (
 	"os"
 )
 
-var _ flag.Value = (*File)(nil)
-var _ io.Reader = (*File)(nil)
+var (
+	_ flag.Value = (*File)(nil)
+	_ io.Reader  = (*File)(nil)
+)
 
 // File for getting.
 type File struct {
@@ -29,7 +31,12 @@ func (f *File) Set(s string) error {
 	if err != nil {
 		return fmt.Errorf("os.Open: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		closeErr := file.Close()
+		if closeErr != nil {
+			err = fmt.Errorf("originalErr: %w: file.Close: %w", err, closeErr)
+		}
+	}()
 
 	buf, err := io.ReadAll(io.LimitReader(file, f.MaxSize))
 	if err != nil {
@@ -37,6 +44,7 @@ func (f *File) Set(s string) error {
 	}
 
 	f.file = bytes.NewBuffer(buf)
+
 	return nil
 }
 

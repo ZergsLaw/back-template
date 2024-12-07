@@ -14,7 +14,7 @@ scrape_configs:
   - job_name: "docker"
     docker_sd_configs:
       - host: "unix:///var/run/docker.sock"
-        refresh_interval: "5s"
+        refresh_interval: "1s"
     relabel_configs:
       - source_labels: [ "__meta_docker_container_id" ]
         target_label: "container_id"
@@ -39,26 +39,26 @@ scrape_configs:
       - source_labels: [ '__meta_docker_container_label_service' ]
         target_label: 'service'
 
-    pipeline_stages:
-      - match:
-          selector: '{service=~"backend"}'
-          pipeline_name: "service"
-          stages:
-            - json:
-                expressions:
-                  time: time
-                  service: service
-                  level: level
-                  msg: msg
-            - labels:
-                service:
-                level:
-                msg:
-            - output:
-                level: level
-                msg: msg
-                time: time
-                service: service
+#    pipeline_stages:
+#      - match:
+#          selector: '{service=~"backend"}'
+#          pipeline_name: "service"
+#          stages:
+#            - json:
+#                expressions:
+#                  time: time
+#                  service: service
+#                  level: level
+#                  msg: msg
+#            - labels:
+#                service:
+#                level:
+#                msg:
+#            - output:
+#                level: level
+#                msg: msg
+#                time: time
+#                service: service
 #          stages:
 #            - json:
 #                expressions:
@@ -81,32 +81,32 @@ scrape_configs:
 #                service: service
 #                source: source
 
-      - match: # grafana
-          selector: '{job="grafana"}'
-          pipeline_name: "grafana"
-          stages:
-            - regex:
-                expression: '^t=(?P<time>\S+) lvl=(?P<level>\S+).*$'
-            - timestamp:
-                source: time
-                format: "2006-01-02T15:04:05-0700"
-
-      - match: # loki
-          selector: '{job="loki"}'
-          pipeline_name: "loki"
-          stages:
-            - regex:
-                expression: '^.* ts=(?P<time>\S+).*$'
-            - timestamp:
-                source: time
-                format: "RFC3339Nano"
-
-      - match: # prometheus
-          selector: '{task="prometheus"}'
-          pipeline_name: "prometheus"
-          stages:
-            - regex:
-                expression: '^level=(?P<level>\S+) ts=(?P<time>\S+).*$'
-            - timestamp:
-                source: time
-                format: "RFC3339Nano"
+#      - match: # grafana
+#          selector: '{job="grafana"}'
+#          pipeline_name: "grafana"
+#          stages:
+#            - regex:
+#                expression: '^t=(?P<time>\S+) lvl=(?P<level>\S+).*$'
+#            - timestamp:
+#                source: time
+#                format: "2006-01-02T15:04:05-0700"
+#
+#      - match: # loki
+#          selector: '{job="loki"}'
+#          pipeline_name: "loki"
+#          stages:
+#            - regex:
+#                expression: '^.* ts=(?P<time>\S+).*$'
+#            - timestamp:
+#                source: time
+#                format: "RFC3339Nano"
+#
+#      - match: # prometheus
+#          selector: '{task="prometheus"}'
+#          pipeline_name: "prometheus"
+#          stages:
+#            - regex:
+#                expression: '^level=(?P<level>\S+) ts=(?P<time>\S+).*$'
+#            - timestamp:
+#                source: time
+#                format: "RFC3339Nano"

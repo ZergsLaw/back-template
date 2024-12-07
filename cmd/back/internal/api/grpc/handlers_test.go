@@ -6,10 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/protobuf/types/known/timestamppb"
-
-	dom "github.com/ZergsLaw/back-template/internal/dom"
-
 	"github.com/gofrs/uuid"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/grpc"
@@ -17,10 +13,12 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	user_pb "github.com/ZergsLaw/back-template/api/user/v1"
 	user_status_pb "github.com/ZergsLaw/back-template/api/user_status/v1"
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
+	dom "github.com/ZergsLaw/back-template/internal/dom"
 )
 
 func TestApi_VerificationEmail(t *testing.T) {
@@ -188,9 +186,7 @@ func TestApi_Login(t *testing.T) {
 func TestApi_Logout(t *testing.T) {
 	t.Parallel()
 
-	var (
-		errInternal = status.Error(codes.Internal, fmt.Sprintf("a.app.Logout: %s", errAny))
-	)
+	errInternal := status.Error(codes.Internal, fmt.Sprintf("a.app.Logout: %s", errAny))
 
 	testCases := map[string]struct {
 		appErr error
@@ -257,6 +253,7 @@ func TestApi_GetUser(t *testing.T) {
 				if tc.userID != "" {
 					id = uuid.Must(uuid.FromString(tc.userID))
 				}
+
 				mockApp.EXPECT().UserByID(gomock.Any(), session, id).Return(tc.appRes, tc.appErr)
 			}
 
@@ -567,6 +564,7 @@ func TestApi_AddAvatar(t *testing.T) {
 		"success":         {nil, nil},
 		"a.app.AddAvatar": {errAny, errInternal},
 	}
+
 	for name, tc := range testCases {
 		name, tc := name, tc
 		t.Run(name, func(t *testing.T) {
@@ -581,5 +579,4 @@ func TestApi_AddAvatar(t *testing.T) {
 			assert.ErrorIs(err, tc.wantErr)
 		})
 	}
-
 }

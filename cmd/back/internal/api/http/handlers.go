@@ -16,7 +16,7 @@ import (
 	"github.com/ZergsLaw/back-template/internal/logger"
 )
 
-const maxAvatarSize = 25 << 20
+const maxFileSize = 25 << 20
 
 func (a *api) downloadAvatar(w http.ResponseWriter, r *http.Request) {
 	userSession := session.FromContext(r.Context())
@@ -78,14 +78,12 @@ func (a *api) uploadFile(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	//TODO max file size?
-	if handler.Size >= maxAvatarSize {
+	if handler.Size >= maxFileSize {
 		errorHandler(w, r, http.StatusBadRequest, ErrMaxAvatarSize)
 
 		return
 	}
 
-	//TODO what is this ntk
 	var buf [512]byte
 	_, err = file.Read(buf[:])
 	if err != nil {

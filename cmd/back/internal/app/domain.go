@@ -17,7 +17,7 @@ type (
 		OwnerID        uuid.UUID
 		Username       string
 		FullName       string
-		Statuses       []app.UserStatus
+		Statuses       []dom.UserStatus
 		Email          string
 		StartCreatedAt time.Time
 		EndCreatedAt   time.Time
@@ -33,7 +33,7 @@ type (
 		Name      string
 		PassHash  []byte
 		AvatarID  uuid.UUID
-		Status    app.UserStatus
+		Status    dom.UserStatus
 		CreatedAt time.Time
 		UpdatedAt time.Time
 	}
@@ -144,6 +144,14 @@ const (
 	FileFormatSvg
 )
 
+//go:generate stringer -output=stringer.SolutionStatus.go -type=SolutionStatus -trimprefix=SolutionStatus
+const (
+	_ SolutionStatus = iota
+	SolutionStatusNew
+	SolutionStatusApprove
+	SolutionStatusCancel
+)
+
 func validateFileFormat(format string) error {
 	switch format {
 	case strings.ToLower(FileFormatWebp.String()), strings.ToLower(FileFormatPng.String()),
@@ -154,11 +162,3 @@ func validateFileFormat(format string) error {
 		return ErrInvalidImageFormat
 	}
 }
-
-//go:generate stringer -output=stringer.SolutionStatus.go -type=SolutionStatus -trimprefix=SolutionStatus
-const (
-	_ SolutionStatus = iota
-	SolutionStatusNew
-	SolutionStatusApprove
-	SolutionStatusCancel
-)

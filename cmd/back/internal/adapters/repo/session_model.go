@@ -4,13 +4,9 @@ import (
 	"net"
 	"time"
 
-	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
-
 	"github.com/gofrs/uuid"
-)
 
-const (
-	requestUpdateStatus = `StatusUpdate`
+	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
 )
 
 type (

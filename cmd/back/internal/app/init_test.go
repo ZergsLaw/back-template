@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
 	"github.com/ZergsLaw/back-template/internal/testhelper"
 )
 

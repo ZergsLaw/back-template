@@ -19,7 +19,6 @@ var _ app.FileStore = &Client{}
 const (
 	headerSrcName = `src_name`
 	headerUserID  = `user_id`
-	bucketAvatars = `user.avatars`
 	bucketFile    = `user.files`
 )
 
@@ -63,33 +62,7 @@ func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Co
 	}
 
 	var lastErr error
-	exist, err := client.BucketExists(ctx, bucketAvatars)
-	for err != nil {
-		logger.FromContext(ctx).Error("couldn't check bucket", slog.String(logger.Error.String(), err.Error()))
-		exist, err = client.BucketExists(ctx, bucketAvatars)
-		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
-			return nil, fmt.Errorf("client.BucketExists: %w", lastErr)
-		}
-
-		lastErr = err
-	}
-
-	err = client.MakeBucket(ctx, bucketAvatars, minio.MakeBucketOptions{
-		Region: cfg.Region,
-	})
-	for !exist && err != nil {
-		logger.FromContext(ctx).Error("couldn't make bucket", slog.String(logger.Error.String(), err.Error()))
-		err = client.MakeBucket(ctx, bucketAvatars, minio.MakeBucketOptions{
-			Region: cfg.Region,
-		})
-		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
-			return nil, fmt.Errorf("client.MakeBucket: %w", lastErr)
-		}
-
-		lastErr = err
-	}
-
-	exist, err = client.BucketExists(ctx, bucketFile)
+	exist, err := client.BucketExists(ctx, bucketFile)
 	for err != nil {
 		logger.FromContext(ctx).Error("couldn't check bucket", slog.String(logger.Error.String(), err.Error()))
 		exist, err = client.BucketExists(ctx, bucketFile)
@@ -123,5 +96,21 @@ func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Co
 
 // Close implements io.Closer.
 func (*Client) Close() error {
+	return nil
+}
+
+var errBucketNotFound = errors.New("bucket not found")
+
+// HealthCheck checks the connection to the file store.
+func (c *Client) HealthCheck(ctx context.Context) error {
+	v, err := c.store.BucketExists(ctx, bucketFile)
+	if err != nil {
+		return fmt.Errorf("store.BucketExists: %w", err)
+	}
+
+	if !v {
+		return errBucketNotFound
+	}
+
 	return nil
 }

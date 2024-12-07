@@ -25,7 +25,7 @@ func (a *api) AuthFuncOverride(ctx context.Context, fullMethodName string) (cont
 
 	userSession, err := a.app.Auth(ctx, token)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", app.ErrInvalidAuth, err)
+		return nil, fmt.Errorf("%w: %w", app.ErrInvalidAuth, err)
 	}
 
 	return session.NewContext(ctx, userSession), nil

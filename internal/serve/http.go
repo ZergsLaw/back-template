@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -18,7 +19,7 @@ import (
 func HTTP(log *slog.Logger, host string, port uint16, handler http.Handler) func(context.Context) error {
 	return func(ctx context.Context) error {
 		srv := &http.Server{ //nolint:gosec,exhaustruct // By design.
-			Addr:    net.JoinHostPort(host, fmt.Sprintf("%d", port)),
+			Addr:    net.JoinHostPort(host, strconv.FormatUint(uint64(port), 10)),
 			Handler: handler,
 		}
 

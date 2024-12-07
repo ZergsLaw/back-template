@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
 	dom "github.com/ZergsLaw/back-template/internal/dom"
 
 	"github.com/gofrs/uuid"

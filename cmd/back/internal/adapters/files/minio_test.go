@@ -11,7 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
 )
 
 const (

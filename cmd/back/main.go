@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -14,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/hellofresh/health-go/v5"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sipki-tech/database/connectors"
 	"google.golang.org/grpc/grpclog"
@@ -32,6 +32,12 @@ import (
 	"github.com/ZergsLaw/back-template/internal/metrics"
 	"github.com/ZergsLaw/back-template/internal/password"
 	"github.com/ZergsLaw/back-template/internal/serve"
+	"github.com/ZergsLaw/back-template/internal/version"
+)
+
+const (
+	exitCode       = 2
+	configFileSize = 1024 * 1024
 )
 
 type (
@@ -67,14 +73,12 @@ type (
 	}
 )
 
-var (
-	cfgFile  = &flags.File{DefaultPath: "/config.yml", MaxSize: 1024 * 1024}
-	logLevel = &flags.Level{Level: slog.LevelDebug}
-)
-
-const version = "v0.1.0"
-
 func main() {
+	var (
+		cfgFile  = &flags.File{DefaultPath: "/config.yml", MaxSize: configFileSize}
+		logLevel = &flags.Level{Level: slog.LevelDebug}
+	)
+
 	flag.Var(cfgFile, "cfg", "path to config file")
 	flag.Var(logLevel, "log_level", "log level")
 	flag.Parse()
@@ -83,7 +87,7 @@ func main() {
 	grpclog.SetLoggerV2(grpchelper.NewLogger(log))
 
 	appName := filepath.Base(os.Args[0])
-	ctxParent := logger.NewContext(context.Background(), log.With(slog.String(logger.Version.String(), version)))
+	ctxParent := logger.NewContext(context.Background(), log.With(slog.String(logger.Version.String(), version.System())))
 	ctx, cancel := signal.NotifyContext(ctxParent, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGTERM)
 	defer cancel()
 	go forceShutdown(ctx)
@@ -93,7 +97,7 @@ func main() {
 		log.Error("shutdown",
 			slog.String(logger.Error.String(), err.Error()),
 		)
-		os.Exit(2)
+		os.Exit(exitCode)
 	}
 }
 
@@ -150,6 +154,33 @@ func run(ctx context.Context, cfg config, reg *prometheus.Registry, namespace st
 
 	httpAPI := http.New(ctx, module)
 
+	const healthTimeout = 5 * time.Second
+
+	// add some checks on instance creation
+	h, err := health.New(
+		health.WithComponent(
+			health.Component{
+				Name:    namespace,
+				Version: version.System(),
+			},
+		),
+		health.WithChecks(
+			health.Config{
+				Name:    "postgres",
+				Timeout: healthTimeout,
+				Check:   r.Health,
+			},
+			health.Config{
+				Name:    "minio",
+				Timeout: healthTimeout,
+				Check:   fileStore.HealthCheck,
+			},
+		),
+	)
+	if err != nil {
+		return fmt.Errorf("health.New: %w", err)
+	}
+
 	gwCfg := serve.GateWayConfig{
 		FS:             user_pb.OpenAPI,
 		Spec:           "user.swagger.json",
@@ -159,6 +190,7 @@ func run(ctx context.Context, cfg config, reg *prometheus.Registry, namespace st
 		GRPCGWPattern:  "/",
 		DocsUIPattern:  "/user/api/v1/docs/",
 		Register:       user_pb.RegisterUserExternalAPIHandler,
+		Healthcheck:    h.Handler(),
 		DevMode:        cfg.DevMode,
 	}
 
@@ -192,18 +224,7 @@ func forceShutdown(ctx context.Context) {
 	time.Sleep(shutdownDelay)
 
 	log.Error("failed to graceful shutdown")
-	os.Exit(2)
-}
-
-func convertErr(err error) error {
-	switch {
-	case errors.Is(err, app.ErrNotFound):
-		return app.ErrNotFound
-	case errors.Is(err, app.ErrInvalidArgument):
-		return app.ErrInvalidArgument
-	default:
-		return err
-	}
+	os.Exit(exitCode)
 }
 
 var _ app.ID = &idGenerator{}

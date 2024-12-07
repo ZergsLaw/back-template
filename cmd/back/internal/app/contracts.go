@@ -36,7 +36,7 @@ type (
 		// Errors: ErrNotFound, unknown.
 		UsersByIDs(ctx context.Context, ids []uuid.UUID) (users []User, err error)
 	}
-	// FileInfoRepo provides to file info repository
+	// FileInfoRepo provides to file info repository.
 	FileInfoRepo interface {
 		// SaveAvatar adds to the new cache about user avatar to repository.
 		// Errors: ErrUserIDAndFileIDExist, ErrMaximumNumberOfStoredFilesReached, unknown.
@@ -57,19 +57,13 @@ type (
 
 	// FileStore interface for saving and getting files.
 	FileStore interface {
-		// UploadAvatar save new file in database.
+		// DeleteFile delete file by id.
 		// Errors: unknown.
-		UploadAvatar(ctx context.Context, f Avatar) (uuid.UUID, error)
-		// DownloadAvatar get file by id.
-		// Errors: unknown.
-		DownloadAvatar(ctx context.Context, id uuid.UUID) (*Avatar, error)
-		// DeleteAvatar delete file by id.
-		// Errors: unknown.
-		DeleteAvatar(ctx context.Context, id uuid.UUID) error
+		DeleteFile(ctx context.Context, id uuid.UUID) error
 		// UploadFile save new file in database.
 		// Errors: unknown.
 		UploadFile(ctx context.Context, f File) (uuid.UUID, error)
-		//DownloadFile get file by id.
+		// DownloadFile get file by id.
 		// Errors: unknown.
 		DownloadFile(ctx context.Context, id uuid.UUID) (*File, error)
 	}

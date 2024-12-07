@@ -3,9 +3,9 @@ package password_test
 import (
 	"testing"
 
-	"github.com/ZergsLaw/back-template/internal/password"
-
 	"github.com/stretchr/testify/require"
+
+	"github.com/ZergsLaw/back-template/internal/password"
 )
 
 var pass = "pass"
@@ -18,5 +18,5 @@ func TestManager_Smoke(t *testing.T) {
 	hashPass, err := passwords.Hashing(pass)
 	assert.NoError(err)
 	compare := passwords.Compare(hashPass, []byte(pass))
-	assert.Equal(true, compare)
+	assert.True(compare)
 }

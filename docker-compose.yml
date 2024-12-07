@@ -1,8 +1,7 @@
-version: "3.9"
-
 volumes:
   minio:
   postgres:
+  prometheus:
 
 services:
 
@@ -11,8 +10,6 @@ services:
     container_name: "back_template_minio"
     restart: "always"
     shm_size: "512m"
-    labels:
-      job: "minio-db"
     environment:
       MINIO_ROOT_USER: "test_svc"
       MINIO_ROOT_PASSWORD: "test_pass"
@@ -70,16 +67,18 @@ services:
 
   loki:
     image: "grafana/loki:3.3.1"
+    container_name: "back_template_loki"
     ports:
       - "3100:3100"
     volumes:
-      - "./configs/promtail/promtail.yml:/etc/promtail/docker-config.yml"
+      - "./configs/loki/loki.yml:/etc/loki/local-config.yml"
     command: [
       "-config.file=/etc/loki/local-config.yml"
     ]
 
   grafana:
-    image: "grafana/grafana:10.2.1"
+    image: "grafana/grafana:11.4.0"
+    container_name: "back_template_grafana"
     ports:
       - "3000:3000"
     volumes:
@@ -92,5 +91,11 @@ services:
       - "GF_AUTH_ANONYMOUS_ORG_ROLE=Admin"
       - "GF_AUTH_DISABLE_LOGIN_FORM=true"
 
-
-
+  prometheus:
+    image: "prom/prometheus:v3.0.1"
+    container_name: "back_template_prometheus"
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "prometheus:/prometheus"

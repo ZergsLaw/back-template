@@ -7,7 +7,7 @@ FROM scratch
 WORKDIR /bin
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY /bin/user user
-COPY /cmd/user/migrate migrate/
+COPY /bin/back back
+COPY /cmd/back/migrate migrate/
 
-ENTRYPOINT ["user"]
+ENTRYPOINT ["back"]

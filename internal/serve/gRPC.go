@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"strconv"
 
 	"google.golang.org/grpc"
 
@@ -15,7 +16,7 @@ import (
 // It runs until failed or ctx.Done.
 func GRPC(log *slog.Logger, host string, port uint16, srv *grpc.Server) func(context.Context) error {
 	return func(ctx context.Context) error {
-		ln, err := net.Listen("tcp", net.JoinHostPort(host, fmt.Sprintf("%d", port)))
+		ln, err := net.Listen("tcp", net.JoinHostPort(host, strconv.FormatUint(uint64(port), 10)))
 		if err != nil {
 			return fmt.Errorf("net.Listen: %w", err)
 		}

@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
 	dom "github.com/ZergsLaw/back-template/internal/dom"
-
-	"github.com/gofrs/uuid"
 )
 
 type (

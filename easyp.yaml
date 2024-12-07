@@ -37,5 +37,5 @@ lint:
     ignore: [ ]
     ignore_only: { }
     allow_comment_ignores: false
-    enum_zero_value_suffix: _NONE
+    enum_zero_value_suffix: NONE
     service_suffix: API

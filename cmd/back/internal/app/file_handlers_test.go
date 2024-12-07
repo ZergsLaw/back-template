@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
 )
 
 func TestApp_GetFile(t *testing.T) {
@@ -143,7 +143,7 @@ func TestApp_RemoveAvatar(t *testing.T) {
 				mocks.repo.EXPECT().DeleteAvatar(ctx, tc.session.UserID, tc.fileID).Return(tc.repoDeleteAvatarCacheErr)
 
 				if tc.repoDeleteAvatarCacheErr == nil {
-					mocks.file.EXPECT().DeleteAvatar(ctx, tc.fileID).Return(tc.fileDeleteFileErr)
+					mocks.file.EXPECT().DeleteFile(ctx, tc.fileID).Return(tc.fileDeleteFileErr)
 				}
 
 				if tc.repoDeleteAvatarCacheErr == nil && tc.fileDeleteFileErr == nil {
@@ -201,10 +201,6 @@ func TestApp_AddAvatar(t *testing.T) {
 			FileID:  fileID,
 			OwnerID: ownerID,
 		}
-		//fileCache2 = app.AvatarInfo{
-		//	FileID:  uuid.Must(uuid.NewV4()),
-		//	OwnerID: ownerID,
-		//}
 		user1 = app.User{
 			ID:       ownerID,
 			Email:    "test@test.com",
@@ -219,7 +215,6 @@ func TestApp_AddAvatar(t *testing.T) {
 			ID:     uuid.Must(uuid.NewV4()),
 			UserID: uuid.Must(uuid.NewV4()),
 		}
-		//user2 = user1
 	)
 	testCases := map[string]struct {
 		session         app.Session

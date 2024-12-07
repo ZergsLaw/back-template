@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/sipki-tech/database"
-
 	"github.com/ory/dockertest/v3"
+	"github.com/sipki-tech/database"
 	"github.com/stretchr/testify/require"
 )
 
@@ -64,9 +63,8 @@ func Postgres(
 		if err != nil {
 			return fmt.Errorf("database.NewSQL: %w", err)
 		}
-		t.Cleanup(func() {
-			assert.NoError(db.Close())
-		})
+
+		t.Cleanup(func() { assert.NoError(db.Close()) })
 
 		servicePort = port
 

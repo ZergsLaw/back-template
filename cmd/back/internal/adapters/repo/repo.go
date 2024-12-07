@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sipki-tech/database"
 	"github.com/sipki-tech/database/connectors"
@@ -67,4 +68,11 @@ func New(ctx context.Context, reg *prometheus.Registry, namespace string, cfg Co
 // Close implements io.Closer.
 func (r *Repo) Close() error {
 	return r.sql.Close()
+}
+
+// Health check database connection.
+func (r *Repo) Health(ctx context.Context) error {
+	return r.sql.NoTx(func(conn *sqlx.DB) error {
+		return conn.PingContext(ctx)
+	})
 }

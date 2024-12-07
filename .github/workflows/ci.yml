@@ -2,13 +2,9 @@ name: user
 
 on:
   push:
-    paths:
-      - 'cmd/user/*'
     branches:
       - main
   pull_request:
-    paths:
-      - 'cmd/user/*'
     branches:
       - main
 
@@ -20,8 +16,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.55.2
-          working-directory: cmd/user/
+          version: v1.62.2
 
   test:
     runs-on: ubuntu-latest
@@ -30,10 +25,10 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.18
+          go-version: 1.23
 
       - name: Checkout repository.
         uses: actions/checkout@v2
 
       - name: Start test.
-        run: go test -race -timeout=60s ./cmd/user/...
+        run: go test -race -timeout=60s ./...

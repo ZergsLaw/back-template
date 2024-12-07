@@ -25,8 +25,8 @@ func recoveryFunc(m metrics.Metrics, err error) grpc_recovery.RecoveryHandlerFun
 	}
 }
 
-func interceptorLogger(l *slog.Logger) logging.Logger { //nolint:ireturn
-	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
+func interceptorLogger(l *slog.Logger) logging.Logger {
+	return logging.LoggerFunc(func(_ context.Context, lvl logging.Level, msg string, fields ...any) {
 		switch lvl {
 		case logging.LevelDebug:
 			l.Debug(msg, fields...)

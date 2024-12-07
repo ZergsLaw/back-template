@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	app "github.com/ZergsLaw/back-template/cmd/user/internal/app"
+	app "github.com/ZergsLaw/back-template/cmd/back/internal/app"
 	uuid "github.com/gofrs/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -70,21 +70,6 @@ func (m *Mockapplication) GetFile(ctx context.Context, session app.Session, file
 func (mr *MockapplicationMockRecorder) GetFile(ctx, session, fileID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFile", reflect.TypeOf((*Mockapplication)(nil).GetFile), ctx, session, fileID)
-}
-
-// SaveAvatar mocks base method.
-func (m *Mockapplication) SaveAvatar(ctx context.Context, session app.Session, file app.Avatar) (uuid.UUID, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveAvatar", ctx, session, file)
-	ret0, _ := ret[0].(uuid.UUID)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SaveAvatar indicates an expected call of SaveAvatar.
-func (mr *MockapplicationMockRecorder) SaveAvatar(ctx, session, file any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveAvatar", reflect.TypeOf((*Mockapplication)(nil).SaveAvatar), ctx, session, file)
 }
 
 // SaveFile mocks base method.

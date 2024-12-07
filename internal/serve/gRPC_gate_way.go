@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"strconv"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/mvrilo/go-redoc"
@@ -27,6 +28,7 @@ type GateWayConfig struct {
 	GRPCGWPattern  string                                                           // Pattern for http.ServeMux to serve grpc-gateway.
 	DocsUIPattern  string                                                           // Pattern for http.ServeMux to serve Swagger UI.
 	Register       func(context.Context, *runtime.ServeMux, *grpc.ClientConn) error // Register gRPC server.
+	Healthcheck    http.Handler
 	DevMode        bool
 }
 
@@ -38,7 +40,7 @@ func GRPCGateWay(log *slog.Logger, host string, port uint16, cfg GateWayConfig) 
 		clientMetric := grpchelper.NewClientMetrics(cfg.Reg, cfg.Namespace, subsystem)
 
 		conn, err := grpchelper.Dial(ctx,
-			net.JoinHostPort(host, fmt.Sprintf("%d", cfg.GRPCServerPort)),
+			net.JoinHostPort(host, strconv.FormatUint(uint64(cfg.GRPCServerPort), 10)),
 			log,
 			clientMetric,
 			[]grpc.UnaryClientInterceptor{},
@@ -57,9 +59,7 @@ func GRPCGateWay(log *slog.Logger, host string, port uint16, cfg GateWayConfig) 
 
 		mux := http.NewServeMux()
 		mux.Handle(cfg.GRPCGWPattern, noCache(corsAllowAll(gw)))
-		mux.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-			w.WriteHeader(http.StatusOK) // TODO: Add checking all external dependency.
-		}))
+		mux.Handle("/health", cfg.Healthcheck)
 
 		if cfg.DevMode {
 			doc := redoc.Redoc{

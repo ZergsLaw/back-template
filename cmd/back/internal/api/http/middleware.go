@@ -14,7 +14,7 @@ import (
 	"github.com/ZergsLaw/back-template/cmd/back/internal/session"
 )
 
-const headerAuthorize = "authorization"
+const headerAuthorize = "Authorization"
 
 const scheme = "Bearer"
 

@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gofrs/uuid"
 	"strings"
+
+	"github.com/gofrs/uuid"
 
 	"github.com/ZergsLaw/back-template/internal/dom"
 )
@@ -51,7 +52,7 @@ func (a *App) CreateUser(ctx context.Context, email, username, fullName, passwor
 			Name:     username,
 			FullName: fullName,
 			PassHash: passHash,
-			Status:   app.UserStatusDefault,
+			Status:   dom.UserStatusDefault,
 		}
 
 		userID, err = repo.UserSave(ctx, newUser)

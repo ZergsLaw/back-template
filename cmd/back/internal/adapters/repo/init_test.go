@@ -12,7 +12,7 @@ import (
 	"github.com/sipki-tech/database/connectors"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ZergsLaw/back-template/cmd/user/internal/adapters/repo"
+	"github.com/ZergsLaw/back-template/cmd/back/internal/adapters/repo"
 	"github.com/ZergsLaw/back-template/internal/logger"
 	"github.com/ZergsLaw/back-template/internal/testhelper"
 )

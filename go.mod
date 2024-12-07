@@ -11,6 +11,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.0.1
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0
+	github.com/hellofresh/health-go/v5 v5.5.3
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.81
@@ -25,11 +26,11 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.57.0
 	go.uber.org/mock v0.5.0
-	golang.org/x/crypto v0.29.0
+	golang.org/x/crypto v0.30.0
 	golang.org/x/sync v0.10.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20241202173237-19429a94021a
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a
-	google.golang.org/grpc v1.68.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20241206012308-a4fef0638583
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241206012308-a4fef0638583
+	google.golang.org/grpc v1.68.1
 	google.golang.org/protobuf v1.35.2
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -75,7 +76,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.60.1 // indirect
+	github.com/prometheus/common v0.61.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
@@ -86,9 +87,9 @@ require (
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
-	golang.org/x/net v0.31.0 // indirect
+	golang.org/x/net v0.32.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

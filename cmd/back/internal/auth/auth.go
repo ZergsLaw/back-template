@@ -5,13 +5,13 @@ package auth
 import (
 	"fmt"
 
-	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
-
 	"github.com/gofrs/uuid"
 	"github.com/o1egl/paseto/v2"
+
+	"github.com/ZergsLaw/back-template/cmd/back/internal/app"
 )
 
-var _ app.Auth = &Auth{}
+var _ app.Auth = (*Auth)(nil)
 
 // Auth is implements app.Auth.
 // Responsible for working with authorization tokens, be it cookies or jwt.
@@ -54,7 +54,7 @@ func (a *Auth) Subject(token string) (uuid.UUID, error) {
 
 	err := paseto.Decrypt(token, a.key, &t, nil)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("%w: %s", app.ErrInvalidToken, err)
+		return uuid.Nil, fmt.Errorf("%w: %w", app.ErrInvalidToken, err)
 	}
 
 	return t.SessionID, nil

@@ -60,70 +60,8 @@ func NewServer(
 	}, extraStream...)
 
 	server := grpc.NewServer(
-		grpc.Creds(insecure.NewCredentials()), // FIXME: add tls.
+		grpc.Creds(insecure.NewCredentials()),
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
-		grpc.KeepaliveParams(
-			keepalive.ServerParameters{ //nolint:exhaustruct
-				Time:    keepaliveTime,
-				Timeout: keepaliveTimeout,
-			},
-		),
-		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
-			MinTime:             keepaliveMinTime,
-			PermitWithoutStream: true,
-		}),
-		grpc.ChainUnaryInterceptor(
-			unaryInterceptor...,
-		),
-		grpc.ChainStreamInterceptor(
-			streamInterceptor...,
-		),
-	)
-
-	reflection.Register(server)
-
-	healthServer := health.NewServer()
-	healthpb.RegisterHealthServer(server, healthServer)
-
-	return server, healthServer
-}
-
-// NewConnectServer creates and returns a connect server.
-func NewConnectServer(
-	m metrics.Metrics,
-	log *slog.Logger,
-	serverMetrics *grpc_prometheus.ServerMetrics,
-	converter GRPCCodesConverterHandler,
-	extraUnary []grpc.UnaryServerInterceptor,
-	extraStream []grpc.StreamServerInterceptor,
-) (*grpc.Server, *health.Server) {
-	loggingOpts := []logging.Option{
-		logging.WithLogOnEvents(
-			logging.StartCall,
-			logging.FinishCall,
-			logging.PayloadReceived,
-			logging.PayloadSent,
-		),
-	}
-
-	unaryInterceptor := append([]grpc.UnaryServerInterceptor{
-		serverMetrics.UnaryServerInterceptor(),
-		logging.UnaryServerInterceptor(interceptorLogger(log), loggingOpts...),
-		grpc_recovery.UnaryServerInterceptor(grpc_recovery.WithRecoveryHandlerContext(recoveryFunc(m, errInternal))),
-		grpc_validator.UnaryServerInterceptor(),
-		UnaryConvertCodesServerInterceptor(converter),
-	}, extraUnary...)
-
-	streamInterceptor := append([]grpc.StreamServerInterceptor{
-		serverMetrics.StreamServerInterceptor(),
-		logging.StreamServerInterceptor(interceptorLogger(log), loggingOpts...),
-		grpc_recovery.StreamServerInterceptor(grpc_recovery.WithRecoveryHandlerContext(recoveryFunc(m, errInternal))),
-		grpc_validator.StreamServerInterceptor(),
-		StreamConvertCodesServerInterceptor(converter),
-	}, extraStream...)
-
-	server := grpc.NewServer(
-		grpc.Creds(insecure.NewCredentials()), // FIXME: add tls.
 		grpc.KeepaliveParams(
 			keepalive.ServerParameters{ //nolint:exhaustruct
 				Time:    keepaliveTime,

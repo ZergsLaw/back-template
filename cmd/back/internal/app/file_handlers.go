@@ -29,7 +29,7 @@ func (a *App) RemoveAvatar(ctx context.Context, session Session, fileID uuid.UUI
 			return fmt.Errorf("a.user.DeleteAvatarCache: %w", err)
 		}
 
-		if err = a.file.DeleteAvatar(ctx, fileID); err != nil {
+		if err = a.file.DeleteFile(ctx, fileID); err != nil {
 			return fmt.Errorf("a.file.RemoveObject: %w", err)
 		}
 
@@ -79,8 +79,7 @@ func (a *App) GetFile(ctx context.Context, _ Session, fileID uuid.UUID) (*File, 
 }
 
 // SaveFile save info about avatar.
-func (a *App) SaveFile(ctx context.Context, session Session, file File) (fileID uuid.UUID, err error) {
-
+func (a *App) SaveFile(ctx context.Context, _ Session, file File) (fileID uuid.UUID, err error) {
 	fileID, err = a.file.UploadFile(ctx, file)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("a.file.UploadFile: %w", err)
