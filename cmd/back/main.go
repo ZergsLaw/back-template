@@ -42,34 +42,34 @@ const (
 
 type (
 	config struct {
-		Server    server          `yaml:"server"`
-		DB        dbConfig        `yaml:"db"`
-		FileStore fileStoreConfig `yaml:"file_store"`
-		AuthKey   string          `yaml:"auth_key"`
-		DevMode   bool            `yaml:"dev_mode"`
+		Server    server          `yaml:"server" env:"SERVER"`
+		DB        dbConfig        `yaml:"db" env:"DB"`
+		FileStore fileStoreConfig `yaml:"file_store" env:"FILE_STORE"`
+		AuthKey   string          `yaml:"auth_key" env:"AUTH_KEY"`
+		DevMode   bool            `yaml:"dev_mode" env:"DEV_MODE"`
 	}
 	server struct {
-		Host string `yaml:"host"`
-		Port ports  `yaml:"port"`
+		Host string `yaml:"host" env:"HOST"`
+		Port ports  `yaml:"port" env:"PORT"`
 	}
 	ports struct {
-		GRPC   uint16 `yaml:"grpc"`
-		Metric uint16 `yaml:"metric"`
-		GW     uint16 `yaml:"gw"`
-		Files  uint16 `yaml:"files"`
+		GRPC   uint16 `yaml:"grpc" env:"GRPC"`
+		Metric uint16 `yaml:"metric" env:"METRIC"`
+		GW     uint16 `yaml:"gw" env:"GW"`
+		Files  uint16 `yaml:"files" env:"FILES"`
 	}
 	dbConfig struct {
-		MigrateDir string `yaml:"migrate_dir"`
-		Driver     string `yaml:"driver"`
-		Postgres   string `yaml:"postgres"`
+		MigrateDir string `yaml:"migrate_dir" env:"MIGRATE_DIR"`
+		Driver     string `yaml:"driver" env:"DRIVER"`
+		Postgres   string `yaml:"postgres" env:"POSTGRES"`
 	}
 	fileStoreConfig struct {
-		Secure       bool   `yaml:"secure"`
-		Endpoint     string `yaml:"endpoint"`
-		AccessKey    string `yaml:"access_key"`
-		SecretKey    string `yaml:"secret_key"`
-		SessionToken string `yaml:"session_token"`
-		Region       string `yaml:"region"`
+		Secure       bool   `yaml:"secure" env:"SECURE"`
+		Endpoint     string `yaml:"endpoint" env:"ENDPOINT"`
+		AccessKey    string `yaml:"access_key" env:"ACCESS_KEY"`
+		SecretKey    string `yaml:"secret_key" env:"SECRET_KEY"`
+		SessionToken string `yaml:"session_token" env:"SESSION_TOKEN"`
+		Region       string `yaml:"region" env:"REGION"`
 	}
 )
 
